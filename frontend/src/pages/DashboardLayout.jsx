@@ -2,20 +2,20 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    LayoutDashboard, Funnel, Users, Trophy, Brain,
-    ChevronLeft, ChevronRight, LogOut, Sparkles,
+    LayoutDashboard, Funnel, Users, Trophy,
+    ChevronLeft, ChevronRight, LogOut, Sparkles, TrendingUp,
 } from 'lucide-react';
 import AIPanel from '../components/AIPanel';
 
 const NAV = [
-    { to: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Overview', end: true },
+    { to: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard', end: true },
     { to: '/dashboard/funnel', icon: <Funnel size={18} />, label: 'Embudo' },
     { to: '/dashboard/leads', icon: <Users size={18} />, label: 'Leads' },
     { to: '/dashboard/agents', icon: <Trophy size={18} />, label: 'Agentes' },
 ];
 
 const PAGE_TITLES = {
-    '/dashboard': 'Overview',
+    '/dashboard': 'Vista General',
     '/dashboard/funnel': 'Embudo de Conversión',
     '/dashboard/leads': 'Gestión de Leads',
     '/dashboard/agents': 'Performance de Agentes',
@@ -35,31 +35,38 @@ export default function DashboardLayout() {
     const title = PAGE_TITLES[location.pathname] || 'Dashboard';
 
     return (
-        <div className="dashboard-layout">
+        <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden">
             {/* ── Sidebar ── */}
             <motion.aside
-                className={`sidebar ${collapsed ? 'collapsed' : ''}`}
+                className="bg-slate-900 text-white flex-shrink-0 flex flex-col"
                 initial={false}
                 animate={{ width: collapsed ? 72 : 260 }}
                 transition={{ duration: 0.25 }}
             >
-                <div className="sidebar-brand">
-                    <div className="sidebar-brand-icon">⚡</div>
+                <div className="p-5 flex items-center gap-3 border-b border-slate-800">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <TrendingUp size={20} />
+                    </div>
                     {!collapsed && (
-                        <div className="sidebar-brand-text">
-                            <h2>CrexeWeb</h2>
-                            <span>Dashboard IA</span>
+                        <div className="overflow-hidden whitespace-nowrap">
+                            <h2 className="text-lg font-extrabold leading-tight">CrexeWeb</h2>
+                            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Dashboard IA</span>
                         </div>
                     )}
                 </div>
 
-                <nav className="sidebar-nav">
+                <nav className="flex-1 p-3 space-y-1">
                     {NAV.map((item) => (
                         <NavLink
                             key={item.to}
                             to={item.to}
                             end={item.end}
-                            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                            className={({ isActive }) =>
+                                `flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium transition-colors ${isActive
+                                    ? 'bg-blue-600 text-white'
+                                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                                }`
+                            }
                         >
                             {item.icon}
                             {!collapsed && <span>{item.label}</span>}
@@ -67,41 +74,41 @@ export default function DashboardLayout() {
                     ))}
                 </nav>
 
-                <div className="sidebar-footer">
-                    <button className="nav-item" onClick={() => setCollapsed(!collapsed)}>
+                <div className="p-3 border-t border-slate-800 space-y-1">
+                    <button
+                        onClick={() => setCollapsed(!collapsed)}
+                        className="flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors w-full"
+                    >
                         {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
                         {!collapsed && <span>Colapsar</span>}
                     </button>
-                    <button className="nav-item" onClick={logout} style={{ color: '#ef4444' }}>
+                    <button
+                        onClick={logout}
+                        className="flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium text-red-400 hover:bg-slate-800 transition-colors w-full"
+                    >
                         <LogOut size={18} />
                         {!collapsed && <span>Cerrar Sesión</span>}
                     </button>
                 </div>
             </motion.aside>
 
-            {/* ── Main Content ── */}
-            <div className="main-content">
-                <header className="topbar">
-                    <div className="topbar-left">
-                        <h1 className="topbar-title">{title}</h1>
-                    </div>
-                    <div className="topbar-right">
-                        <button
-                            className="topbar-btn"
-                            onClick={() => setShowAI(!showAI)}
-                            style={{
-                                background: showAI ? 'var(--accent-glow)' : 'transparent',
-                                borderColor: showAI ? 'var(--accent)' : 'var(--border)',
-                                color: showAI ? 'var(--accent-light)' : 'var(--text-secondary)',
-                            }}
-                            title="Asistente IA"
-                        >
-                            <Sparkles size={16} />
-                        </button>
-                    </div>
+            {/* ── Main ── */}
+            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
+                    <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+                    <button
+                        onClick={() => setShowAI(!showAI)}
+                        className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${showAI
+                                ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                : 'bg-white border-slate-200 text-slate-400 hover:border-blue-200 hover:text-blue-500'
+                            }`}
+                        title="Asistente IA"
+                    >
+                        <Sparkles size={16} />
+                    </button>
                 </header>
 
-                <main className="page-content">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden p-8">
                     <Outlet />
                 </main>
             </div>

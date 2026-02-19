@@ -1,140 +1,140 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+} from 'recharts';
+import { Funnel, ArrowDown, TrendingUp, Target } from 'lucide-react';
 import api from '../api';
 
-const STAGE_COLORS = ['#3b82f6', '#60a5fa', '#22c55e', '#a855f7'];
-const STAGE_ICONS = ['🎯', '📞', '✅', '🎓'];
+const BAR_COLORS = ['#3b82f6', '#6366f1', '#10b981', '#f59e0b', '#8b5cf6'];
 
 export default function FunnelPage() {
-    const [funnel, setFunnel] = useState([]);
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.funnel().then((d) => { setFunnel(d); setLoading(false); }).catch(() => setLoading(false));
+        api.funnel().then(setData).catch(() => { }).finally(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="loading-spinner" />;
 
-    const maxVal = funnel[0]?.value || 1;
+    const maxVal = data[0]?.value || 1;
+    const totalConversion = data.length >= 2
+        ? ((data[data.length - 1].value / data[0].value) * 100).toFixed(1)
+        : '0';
 
     return (
-        <div className="animate-fade-in">
-            <motion.div
-                className="card"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-            >
-                <div className="card-header">
-                    <span className="card-title">Funnel de Gestión Completo</span>
-                    <span className="card-subtitle">No Contactado → Contactado → Contacto Efectivo → Matriculado</span>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <Funnel size={20} className="text-blue-500" /> Embudo de Conversión
+                    </h2>
+                    <p className="text-sm text-slate-400 mt-0.5">Flujo completo de leads hasta matriculación</p>
                 </div>
+                <div className="bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Conversión Total</span>
+                    <p className="text-2xl font-extrabold text-emerald-600">{totalConversion}%</p>
+                </div>
+            </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 0, padding: '20px 0' }}>
-                    {funnel.map((stage, i) => {
-                        const widthPct = Math.max((stage.value / maxVal) * 100, 12);
-                        const convRate = i > 0 ? ((stage.value / funnel[i - 1].value) * 100).toFixed(1) : '100.0';
-                        const lostAbsolute = i > 0 ? funnel[i - 1].value - stage.value : 0;
+            {/* Visual Funnel */}
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+                <div className="max-w-2xl mx-auto space-y-2">
+                    {data.map((stage, i) => {
+                        const widthPct = Math.max((stage.value / maxVal) * 100, 15);
+                        const convFromPrev = i > 0 ? ((stage.value / data[i - 1].value) * 100).toFixed(1) : null;
 
                         return (
                             <div key={stage.stage}>
+                                {/* Conversion arrow */}
+                                {i > 0 && (
+                                    <div className="flex items-center justify-center py-1.5">
+                                        <ArrowDown size={18} className="text-slate-300" />
+                                        <span className={`ml-2 text-xs font-bold px-2.5 py-0.5 rounded-full ${parseFloat(convFromPrev) > 50 ? 'bg-emerald-50 text-emerald-600' :
+                                                parseFloat(convFromPrev) > 25 ? 'bg-amber-50 text-amber-600' :
+                                                    'bg-red-50 text-red-500'
+                                            }`}>
+                                            {convFromPrev}% pasan
+                                        </span>
+                                    </div>
+                                )}
+
                                 <motion.div
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: 20, padding: '20px 0',
-                                    }}
-                                    initial={{ opacity: 0, x: -30 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.2, duration: 0.6 }}
+                                    className="mx-auto"
+                                    style={{ width: `${widthPct}%` }}
+                                    initial={{ width: 0, opacity: 0 }}
+                                    animate={{ width: `${widthPct}%`, opacity: 1 }}
+                                    transition={{ duration: 1, delay: i * 0.2, ease: [0.22, 1, 0.36, 1] }}
                                 >
-                                    <div style={{ width: 50, textAlign: 'center', fontSize: 28 }}>{STAGE_ICONS[i]}</div>
-                                    <div style={{ width: 160 }}>
-                                        <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4, color: '#f1f5f9' }}>{stage.stage}</div>
-                                        <div style={{ fontSize: 12, color: '#64748b' }}>
-                                            {i > 0 ? `${convRate}% conversión` : 'Base total'}
+                                    <div
+                                        className="relative rounded-xl px-5 py-4 text-white text-center overflow-hidden"
+                                        style={{ background: BAR_COLORS[i] || BAR_COLORS[0] }}
+                                    >
+                                        <div className="relative z-10">
+                                            <p className="text-xs font-semibold opacity-80 mb-0.5">{stage.stage}</p>
+                                            <p className="text-2xl font-extrabold">{stage.value?.toLocaleString()}</p>
                                         </div>
-                                    </div>
-                                    <div style={{ flex: 1, position: 'relative' }}>
-                                        <div style={{
-                                            height: 52, background: '#12121f', borderRadius: 10,
-                                            overflow: 'hidden', position: 'relative',
-                                        }}>
-                                            <motion.div
-                                                style={{
-                                                    height: '100%', background: STAGE_COLORS[i],
-                                                    borderRadius: 10, display: 'flex', alignItems: 'center',
-                                                    paddingLeft: 16, fontWeight: 700, fontSize: 16, color: 'white',
-                                                }}
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${widthPct}%` }}
-                                                transition={{ delay: 0.3 + i * 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                            >
-                                                {stage.value?.toLocaleString()}
-                                            </motion.div>
-                                        </div>
-                                    </div>
-                                    <div style={{ width: 100, textAlign: 'right' }}>
-                                        <div style={{ fontWeight: 700, fontSize: 22, color: STAGE_COLORS[i] }}>
-                                            {stage.value?.toLocaleString()}
-                                        </div>
-                                        {i > 0 && lostAbsolute > 0 && (
-                                            <div style={{ fontSize: 11, color: '#ef4444' }}>
-                                                -{lostAbsolute.toLocaleString()} perdidos
-                                            </div>
-                                        )}
                                     </div>
                                 </motion.div>
-
-                                {i < funnel.length - 1 && (
-                                    <motion.div
-                                        style={{
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            padding: '4px 0', color: '#1a1a2e',
-                                        }}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: 0.5 + i * 0.2 }}
-                                    >
-                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                            <path d="M10 4V16M10 16L5 11M10 16L15 11" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    </motion.div>
-                                )}
                             </div>
                         );
                     })}
                 </div>
+            </div>
 
-                {/* Conversion Summary */}
-                {funnel.length >= 4 && (
-                    <motion.div
-                        style={{
-                            marginTop: 20, padding: 20, background: '#0a0a12', borderRadius: 12,
-                            border: '1px solid #1a1a2e', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16,
-                        }}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.2 }}
-                    >
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>Lead → Contactado</div>
-                            <div style={{ fontSize: 24, fontWeight: 700, color: '#60a5fa' }}>
-                                {((funnel[1].value / funnel[0].value) * 100).toFixed(1)}%
-                            </div>
-                        </div>
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>Lead → Efectivo</div>
-                            <div style={{ fontSize: 24, fontWeight: 700, color: '#22c55e' }}>
-                                {((funnel[2].value / funnel[0].value) * 100).toFixed(1)}%
-                            </div>
-                        </div>
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>Lead → Matriculado</div>
-                            <div style={{ fontSize: 24, fontWeight: 700, color: '#a855f7' }}>
-                                {((funnel[3].value / funnel[0].value) * 100).toFixed(1)}%
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </motion.div>
+            {/* Bar chart */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <Target size={16} className="text-blue-500" /> Comparativa por Etapa
+                </h3>
+                <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data} barCategoryGap="30%">
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                            <Tooltip
+                                contentStyle={{ borderRadius: '12px', border: '1px solid #f1f5f9', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
+                            />
+                            <Bar dataKey="value" name="Cantidad" radius={[8, 8, 0, 0]} animationDuration={1500}>
+                                {data.map((_, i) => (
+                                    <Cell key={i} fill={BAR_COLORS[i]} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* Conversion Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {data.length >= 2 && data.slice(1).map((stage, i) => {
+                    const prev = data[i];
+                    const conv = ((stage.value / prev.value) * 100).toFixed(1);
+                    return (
+                        <motion.div
+                            key={stage.stage}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 + i * 0.1 }}
+                            className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm text-center"
+                        >
+                            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                                {prev.stage} → {stage.stage}
+                            </p>
+                            <p className={`text-3xl font-extrabold ${parseFloat(conv) > 50 ? 'text-emerald-600' :
+                                    parseFloat(conv) > 25 ? 'text-amber-500' :
+                                        'text-red-500'
+                                }`}>{conv}%</p>
+                            <p className="text-xs text-slate-400 mt-1">
+                                {prev.value?.toLocaleString()} → {stage.value?.toLocaleString()}
+                            </p>
+                        </motion.div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

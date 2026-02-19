@@ -1,77 +1,88 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Lock } from 'lucide-react';
+import { Lock, Mail, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export default function LoginPage() {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        setError('');
         setLoading(true);
+        setError('');
         try {
-            const data = await api.login(username, password);
-            localStorage.setItem('crexe_token', data.token);
+            const res = await api.login(email, password);
+            localStorage.setItem('crexe_token', res.access_token);
             navigate('/dashboard');
-        } catch (err) {
-            setError(err.message || 'Credenciales incorrectas');
+        } catch {
+            setError('Credenciales inválidas');
         }
         setLoading(false);
     };
 
     return (
-        <div className="login-wrapper">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-5">
             <motion.div
-                className="login-card"
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-12 text-center relative overflow-hidden"
             >
-                <div className="login-logo">⚡</div>
-                <h1 className="login-title">CrexeWeb</h1>
-                <p className="login-subtitle">Dashboard Inteligente</p>
+                {/* Top accent line */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
-                {error && (
-                    <motion.div
-                        className="login-error"
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        {error}
-                    </motion.div>
-                )}
+                <div className="mb-4">
+                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-blue-500/25">
+                        <TrendingUp size={28} className="text-white" />
+                    </div>
+                    <h1 className="text-3xl font-extrabold text-slate-900 mb-1">
+                        Crexe<span className="text-blue-600">Web</span>
+                    </h1>
+                    <p className="text-sm text-slate-400 font-medium">Dashboard de Gestión</p>
+                </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="login-field">
-                        <label><User size={13} /> Usuario</label>
+                <form onSubmit={handleLogin} className="mt-8 text-left space-y-5">
+                    {error && (
+                        <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
+                            {error}
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">
+                            <Mail size={12} /> Email
+                        </label>
                         <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Ingresá tu usuario"
-                            autoFocus
-                            required
+                            type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
+                            className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                            placeholder="tu@email.com"
                         />
                     </div>
-                    <div className="login-field">
-                        <label><Lock size={13} /> Contraseña</label>
+
+                    <div>
+                        <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">
+                            <Lock size={12} /> Contraseña
+                        </label>
                         <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
+                            className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                             placeholder="••••••••"
-                            required
                         />
                     </div>
-                    <button className="login-btn" type="submit" disabled={loading}>
-                        {loading ? 'Ingresando...' : 'Ingresar'}
-                    </button>
+
+                    <motion.button
+                        type="submit" disabled={loading}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full py-3.5 mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+                    </motion.button>
                 </form>
             </motion.div>
         </div>

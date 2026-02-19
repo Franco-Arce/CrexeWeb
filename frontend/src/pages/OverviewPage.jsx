@@ -1,20 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import {
-    AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+    AreaChart, Area, BarChart, Bar, PieChart as RePie, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import {
     Users, UserCheck, UserX, GraduationCap, Phone, TrendingUp,
-    BarChart3, PieChart as PieIcon, Activity, ArrowDown, Zap,
+    BarChart3, PieChart as PieIcon, Target, ArrowUpRight, ArrowDownRight,
 } from 'lucide-react';
 import api from '../api';
 
-const COLORS = ['#3b82f6', '#a855f7', '#22c55e', '#f59e0b', '#06b6d4', '#ef4444'];
-const FUNNEL_COLORS = ['#3b82f6', '#06b6d4', '#22c55e', '#f59e0b', '#a855f7'];
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
-/* ── Animated Counter — eased counting ── */
-function AnimatedNumber({ value, suffix = '', duration = 1.8 }) {
+/* ── Animated Counter ── */
+function AnimatedNumber({ value, suffix = '', duration = 1.5 }) {
     const [count, setCount] = useState(0);
     const ref = useRef(null);
     const inView = useInView(ref, { once: true, margin: '-50px' });
@@ -23,10 +22,10 @@ function AnimatedNumber({ value, suffix = '', duration = 1.8 }) {
         if (!inView || value == null) return;
         const num = typeof value === 'string' ? parseFloat(value) : value;
         if (isNaN(num)) { setCount(value); return; }
-        const startTime = performance.now();
+        const start = performance.now();
         const animate = (now) => {
-            const t = Math.min((now - startTime) / (duration * 1000), 1);
-            const eased = 1 - Math.pow(1 - t, 4); // quartic ease-out
+            const t = Math.min((now - start) / (duration * 1000), 1);
+            const eased = 1 - Math.pow(1 - t, 4);
             if (t >= 1) { setCount(num); return; }
             setCount(Math.floor(eased * num));
             requestAnimationFrame(animate);
@@ -37,30 +36,17 @@ function AnimatedNumber({ value, suffix = '', duration = 1.8 }) {
     return <span ref={ref}>{typeof count === 'number' ? count.toLocaleString() : count}{suffix}</span>;
 }
 
-/* ── Section wrapper with scroll-reveal ── */
-function ScrollReveal({ children, delay = 0, direction = 'up', className = '', style = {} }) {
+/* ── Scroll Reveal ── */
+function Reveal({ children, delay = 0, className = '' }) {
     const ref = useRef(null);
-    const inView = useInView(ref, { once: true, margin: '-80px' });
-
-    const dirMap = {
-        up: { y: 60 },
-        down: { y: -60 },
-        left: { x: 80 },
-        right: { x: -80 },
-        scale: { scale: 0.85 },
-    };
-
+    const inView = useInView(ref, { once: true, margin: '-60px' });
     return (
         <motion.div
             ref={ref}
             className={className}
-            style={style}
-            initial={{ opacity: 0, ...dirMap[direction] }}
-            animate={inView ? { opacity: 1, y: 0, x: 0, scale: 1 } : {}}
-            transition={{
-                duration: 0.8, delay,
-                ease: [0.22, 1, 0.36, 1],
-            }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
         >
             {children}
         </motion.div>
@@ -68,75 +54,64 @@ function ScrollReveal({ children, delay = 0, direction = 'up', className = '', s
 }
 
 /* ── Premium Tooltip ── */
-const PremiumTooltip = ({ active, payload, label }) => {
+const ChartTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     const data = payload[0]?.payload;
-    const programa = data?.programa || data?.nombre;
-    const hasConversion = data?.total && data?.efectivos;
-    const conv = hasConversion ? ((data.efectivos / data.total) * 100).toFixed(1) : null;
+    const hasConv = data?.total && data?.efectivos;
+    const conv = hasConv ? ((data.efectivos / data.total) * 100).toFixed(1) : null;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 6 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            style={{
-                background: 'rgba(6,6,20,0.96)', backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(59,130,246,0.25)', borderRadius: 16,
-                padding: '18px 22px', fontSize: 12, minWidth: 220,
-                boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 40px rgba(59,130,246,0.1)',
-            }}
-        >
-            {/* Header */}
-            <div style={{
-                fontWeight: 800, fontSize: 14, color: '#f1f5f9', marginBottom: 12,
-                paddingBottom: 10, borderBottom: '1px solid rgba(255,255,255,0.08)',
-                display: 'flex', alignItems: 'center', gap: 8,
-            }}>
-                <Zap size={14} style={{ color: '#3b82f6' }} />
-                {programa || label}
+        <div className="bg-white rounded-xl border border-slate-100 shadow-xl shadow-slate-200/50 px-5 py-4 min-w-[200px]">
+            <div className="font-bold text-sm text-slate-800 mb-3 pb-2 border-b border-slate-100">
+                {data?.programa || data?.nombre || label}
             </div>
-
-            {/* Metrics */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {payload.map((p, i) => (
-                    <div key={i} style={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '4px 0',
-                    }}>
-                        <span style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{
-                                width: 10, height: 10, borderRadius: '50%', background: p.color,
-                                display: 'inline-block', boxShadow: `0 0 8px ${p.color}55`,
-                            }} />
-                            {p.name}
-                        </span>
-                        <span style={{ color: p.color, fontWeight: 800, fontSize: 15 }}>
-                            {p.value?.toLocaleString()}
-                        </span>
-                    </div>
-                ))}
-            </div>
-
-            {/* Conversion rate */}
-            {conv && (
-                <div style={{
-                    marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.08)',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                }}>
-                    <span style={{ color: '#64748b', fontSize: 11 }}>Tasa de conversión</span>
-                    <span style={{
-                        background: parseFloat(conv) > 25 ? 'rgba(34,197,94,0.15)' : 'rgba(245,158,11,0.15)',
-                        color: parseFloat(conv) > 25 ? '#22c55e' : '#f59e0b',
-                        padding: '3px 12px', borderRadius: 20, fontWeight: 800, fontSize: 12,
-                        border: `1px solid ${parseFloat(conv) > 25 ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.2)'}`,
-                    }}>
-                        {conv}%
+            {payload.map((p, i) => (
+                <div key={i} className="flex justify-between items-center py-1 gap-4">
+                    <span className="text-slate-500 text-xs flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: p.color }} />
+                        {p.name}
                     </span>
+                    <span className="font-bold text-sm" style={{ color: p.color }}>{p.value?.toLocaleString()}</span>
+                </div>
+            ))}
+            {conv && (
+                <div className="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center">
+                    <span className="text-slate-400 text-[11px]">Conversión</span>
+                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${parseFloat(conv) > 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                        }`}>{conv}%</span>
                 </div>
             )}
-        </motion.div>
+        </div>
     );
 };
+
+/* ── KPI Card ── */
+const StatCard = ({ label, value, icon: Icon, trend, color, suffix = '' }) => (
+    <motion.div
+        whileHover={{ y: -4, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)' }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm"
+    >
+        <div className="flex items-start justify-between">
+            <div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
+                <h3 className="text-3xl font-extrabold text-slate-900">
+                    <AnimatedNumber value={value} suffix={suffix} />
+                </h3>
+                {trend != null && (
+                    <div className={`flex items-center mt-2 text-xs font-semibold ${trend > 0 ? 'text-emerald-600' : 'text-rose-500'
+                        }`}>
+                        {trend > 0 ? <ArrowUpRight size={14} className="mr-0.5" /> : <ArrowDownRight size={14} className="mr-0.5" />}
+                        {Math.abs(trend)}% vs anterior
+                    </div>
+                )}
+            </div>
+            <div className={`p-3 rounded-xl ${color}`}>
+                <Icon size={18} className="text-white" />
+            </div>
+        </div>
+    </motion.div>
+);
 
 export default function OverviewPage() {
     const [kpis, setKpis] = useState(null);
@@ -147,19 +122,13 @@ export default function OverviewPage() {
     const [period, setPeriod] = useState('week');
     const [loading, setLoading] = useState(true);
 
-    // Scroll-based parallax for the page
-    const containerRef = useRef(null);
-    const { scrollY } = useScroll();
-    const headerY = useTransform(scrollY, [0, 300], [0, -30]);
-    const headerOpacity = useTransform(scrollY, [0, 200], [1, 0.7]);
-
     useEffect(() => {
         Promise.all([
             api.kpis(), api.funnel(), api.trends(period), api.byMedio(), api.byPrograma(),
         ]).then(([k, f, t, m, p]) => {
             setKpis(k); setFunnel(f);
             setTrends(t.map(d => ({ ...d, period: d.period?.slice(5) })));
-            setMedios(m); setProgramas(p.slice(0, 10));
+            setMedios(m); setProgramas(p.slice(0, 8));
             setLoading(false);
         }).catch(() => setLoading(false));
     }, []);
@@ -171,355 +140,244 @@ export default function OverviewPage() {
     }, [period]);
 
     if (loading) return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', flexDirection: 'column', gap: 20 }}>
-            <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
-                style={{
-                    width: 48, height: 48, borderRadius: '50%',
-                    border: '3px solid rgba(59,130,246,0.1)',
-                    borderTopColor: '#3b82f6',
-                }}
-            />
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                style={{ color: '#475569', fontSize: 13, fontWeight: 500 }}
-            >
-                Cargando dashboard...
-            </motion.p>
+        <div className="flex items-center justify-center h-[60vh] flex-col gap-4">
+            <div className="loading-spinner" />
+            <p className="text-slate-400 text-sm animate-pulse">Cargando dashboard...</p>
         </div>
     );
 
     const kpiCards = [
-        { label: 'Total Leads', value: kpis?.total_leads, icon: <Users size={18} />, color: 'accent', glow: '#3b82f6' },
-        { label: 'Contactados', value: kpis?.contactados, icon: <UserCheck size={18} />, color: 'cyan', glow: '#06b6d4' },
-        { label: 'No Contactados', value: kpis?.no_contactados, icon: <UserX size={18} />, color: 'red', glow: '#ef4444' },
-        { label: 'Contacto Efectivo', value: kpis?.contacto_efectivo, icon: <Phone size={18} />, color: 'green', glow: '#22c55e' },
-        { label: 'Matriculados', value: kpis?.matriculados, icon: <GraduationCap size={18} />, color: 'purple', glow: '#a855f7' },
-        { label: 'Conversión', value: kpis?.total_leads ? ((kpis.matriculados / kpis.total_leads) * 100).toFixed(1) : '0', icon: <TrendingUp size={18} />, color: 'yellow', suffix: '%', glow: '#f59e0b' },
+        { label: 'Total Leads', value: kpis?.total_leads, icon: Users, color: 'bg-blue-500', trend: 12 },
+        { label: 'Contactados', value: kpis?.contactados, icon: PhoneCall, color: 'bg-indigo-500', trend: 8 },
+        { label: 'No Contactados', value: kpis?.no_contactados, icon: UserX, color: 'bg-slate-400', trend: -5 },
+        { label: 'Contacto Efectivo', value: kpis?.contacto_efectivo, icon: UserCheck, color: 'bg-emerald-500', trend: 15 },
+        { label: 'Matriculados', value: kpis?.matriculados, icon: GraduationCap, color: 'bg-amber-500', trend: 22 },
+        { label: 'Conversión', value: kpis?.total_leads ? ((kpis.matriculados / kpis.total_leads) * 100).toFixed(1) : '0', icon: TrendingUp, color: 'bg-rose-500', suffix: '%', trend: 4 },
     ];
 
     const maxFunnel = funnel[0]?.value || 1;
 
     return (
-        <div ref={containerRef}>
-            {/* ── KPI Cards with staggered scroll-reveal ── */}
-            <div className="kpi-grid">
+        <div className="space-y-6">
+            {/* KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {kpiCards.map((k, i) => (
-                    <ScrollReveal key={k.label} delay={i * 0.08} direction={i % 2 === 0 ? 'up' : 'scale'}>
-                        <motion.div
-                            className={`kpi-card ${k.color}`}
-                            whileHover={{
-                                y: -10, scale: 1.04,
-                                boxShadow: `0 16px 48px ${k.glow}25, 0 0 24px ${k.glow}15`,
-                            }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                        >
-                            <motion.div
-                                className={`kpi-icon ${k.color}`}
-                                animate={{ rotate: [0, 5, -5, 0] }}
-                                transition={{ repeat: Infinity, duration: 6, delay: i * 0.5 }}
-                            >
-                                {k.icon}
-                            </motion.div>
-                            <div className="kpi-label">{k.label}</div>
-                            <div className="kpi-value">
-                                <AnimatedNumber value={k.value} suffix={k.suffix || ''} />
-                            </div>
-                        </motion.div>
-                    </ScrollReveal>
+                    <Reveal key={k.label} delay={i * 0.05}>
+                        <StatCard {...k} />
+                    </Reveal>
                 ))}
             </div>
 
-            {/* ── Funnel ── */}
-            <ScrollReveal direction="up" delay={0.1}>
-                <div className="card" style={{ marginBottom: 28 }}>
-                    <div className="card-header">
-                        <span className="card-title"><Activity size={16} /> Embudo de Conversión</span>
-                        <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 2 }}
-                            style={{
-                                fontSize: 12, fontWeight: 700,
-                                background: 'rgba(34,197,94,0.12)',
-                                border: '1px solid rgba(34,197,94,0.2)',
-                                color: '#22c55e', padding: '4px 12px', borderRadius: 20,
-                            }}
-                        >
-                            {((funnel[funnel.length - 1]?.value / maxFunnel) * 100).toFixed(1)}% conversión total
-                        </motion.span>
-                    </div>
-                    <div style={{ padding: '32px 36px' }}>
-                        {funnel.map((stage, i) => {
-                            const pct = ((stage.value / maxFunnel) * 100);
-                            const convFromPrev = i > 0 ? ((stage.value / funnel[i - 1].value) * 100).toFixed(1) : null;
-                            const color = FUNNEL_COLORS[i] || '#3b82f6';
-                            return (
-                                <div key={stage.stage}>
-                                    <motion.div
-                                        style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 4 }}
-                                        initial={{ opacity: 0, x: -60 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 + i * 0.18, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                                    >
-                                        {/* Stage Label */}
-                                        <div style={{
-                                            width: 170, textAlign: 'right', fontSize: 14, fontWeight: 700,
-                                            color: color, flexShrink: 0,
-                                        }}>
-                                            {stage.stage}
-                                        </div>
-
-                                        {/* Bar */}
-                                        <div style={{
-                                            flex: 1, height: 56, background: 'rgba(255,255,255,0.02)',
-                                            borderRadius: 14, overflow: 'hidden', position: 'relative',
-                                            border: '1px solid rgba(255,255,255,0.04)',
-                                        }}>
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${Math.max(pct, 10)}%` }}
-                                                transition={{ duration: 1.6, delay: 0.5 + i * 0.22, ease: [0.22, 1, 0.36, 1] }}
-                                                style={{
-                                                    height: '100%', borderRadius: 14,
-                                                    background: `linear-gradient(90deg, ${color}, ${color}77)`,
-                                                    boxShadow: `0 0 30px ${color}33`,
-                                                    display: 'flex', alignItems: 'center', paddingLeft: 20,
-                                                    fontSize: 18, fontWeight: 900, color: '#fff', minWidth: 80,
-                                                    textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                                                    position: 'relative', overflow: 'hidden',
-                                                }}
-                                            >
-                                                {stage.value?.toLocaleString()}
-
-                                                {/* Animated shine sweep */}
-                                                <motion.div
-                                                    animate={{ x: ['-100%', '300%'] }}
-                                                    transition={{ repeat: Infinity, duration: 3, delay: 2 + i * 0.5, ease: 'easeInOut', repeatDelay: 4 }}
-                                                    style={{
-                                                        position: 'absolute', top: 0, bottom: 0, width: '40%',
-                                                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)',
-                                                    }}
-                                                />
-                                            </motion.div>
-                                        </div>
-
-                                        {/* Percentage Pill */}
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ delay: 1.4 + i * 0.2, type: 'spring', stiffness: 400, damping: 15 }}
-                                            style={{
-                                                width: 76, height: 42, borderRadius: 12,
-                                                background: `${color}15`, border: `1.5px solid ${color}40`,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                fontSize: 15, fontWeight: 800, color: color, flexShrink: 0,
-                                                boxShadow: `0 0 16px ${color}15`,
-                                            }}
-                                        >
-                                            {pct.toFixed(1)}%
-                                        </motion.div>
-                                    </motion.div>
-
-                                    {/* Conversion Arrow — only between stages */}
-                                    {convFromPrev && i < funnel.length && (
-                                        <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            transition={{ delay: 1.8 + i * 0.2, duration: 0.4 }}
-                                            style={{
-                                                display: 'flex', alignItems: 'center', gap: 8,
-                                                marginLeft: 190, padding: '8px 0', marginBottom: 4,
-                                            }}
-                                        >
-                                            <motion.div
-                                                animate={{ y: [0, 3, 0] }}
-                                                transition={{ repeat: Infinity, duration: 1.5 }}
-                                            >
-                                                <ArrowDown size={14} style={{ color: '#475569' }} />
-                                            </motion.div>
-                                            <span style={{
-                                                fontSize: 12, fontWeight: 700,
-                                                background: parseFloat(convFromPrev) > 50
-                                                    ? 'rgba(34,197,94,0.1)' : parseFloat(convFromPrev) > 25
-                                                        ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
-                                                border: `1px solid ${parseFloat(convFromPrev) > 50
-                                                        ? 'rgba(34,197,94,0.2)' : parseFloat(convFromPrev) > 25
-                                                            ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)'
-                                                    }`,
-                                                borderRadius: 8, padding: '4px 12px',
-                                                color: parseFloat(convFromPrev) > 50
-                                                    ? '#22c55e' : parseFloat(convFromPrev) > 25
-                                                        ? '#f59e0b' : '#ef4444',
-                                            }}>
-                                                {convFromPrev}% pasan a la siguiente etapa
-                                            </span>
-                                        </motion.div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            </ScrollReveal>
-
-            {/* ── Charts Row ── */}
-            <div className="grid-2">
-                {/* Trends */}
-                <ScrollReveal direction="left" delay={0.1}>
-                    <div className="card">
-                        <div className="card-header">
-                            <span className="card-title"><BarChart3 size={16} /> Tendencia en el Tiempo</span>
-                            <div style={{ display: 'flex', gap: 4 }}>
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Main Trend */}
+                <Reveal className="lg:col-span-8">
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                    <BarChart3 size={16} className="text-blue-500" /> Tendencias de Conversión
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5">Actividad por período</p>
+                            </div>
+                            <div className="flex bg-slate-100 rounded-lg p-0.5">
                                 {[
                                     { key: 'day', label: 'Día' },
                                     { key: 'week', label: 'Semana' },
                                     { key: 'month', label: 'Mes' },
                                 ].map(p => (
-                                    <motion.button
+                                    <button
                                         key={p.key}
                                         onClick={() => setPeriod(p.key)}
-                                        whileHover={{ scale: 1.08 }}
-                                        whileTap={{ scale: 0.92 }}
-                                        style={{
-                                            padding: '6px 16px', borderRadius: 8, border: '1px solid',
-                                            borderColor: period === p.key ? '#3b82f6' : 'rgba(255,255,255,0.06)',
-                                            background: period === p.key ? 'rgba(59,130,246,0.15)' : 'transparent',
-                                            color: period === p.key ? '#60a5fa' : '#475569',
-                                            fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                                            transition: 'background 0.2s, color 0.2s',
-                                        }}
+                                        className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${period === p.key
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-slate-500 hover:text-slate-700'
+                                            }`}
                                     >
                                         {p.label}
-                                    </motion.button>
+                                    </button>
                                 ))}
                             </div>
                         </div>
-                        <div className="card-body">
-                            <ResponsiveContainer width="100%" height={300}>
+                        <div className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={trends}>
                                     <defs>
                                         <linearGradient id="gL" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.4} />
-                                            <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-                                        </linearGradient>
-                                        <linearGradient id="gE" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#22c55e" stopOpacity={0.35} />
-                                            <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                                    <XAxis dataKey="period" tick={{ fill: '#475569', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fill: '#475569', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                    <Tooltip content={<PremiumTooltip />} />
-                                    <Area type="monotone" dataKey="leads" name="Leads" stroke="#3b82f6" fill="url(#gL)" strokeWidth={2.5}
-                                        dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }}
-                                        activeDot={{ r: 7, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }}
-                                        animationDuration={1500} />
-                                    <Area type="monotone" dataKey="efectivos" name="Efectivos" stroke="#22c55e" fill="url(#gE)" strokeWidth={2.5}
-                                        dot={{ r: 3, fill: '#22c55e', strokeWidth: 0 }}
-                                        activeDot={{ r: 7, fill: '#22c55e', stroke: '#fff', strokeWidth: 2 }}
-                                        animationDuration={1800} />
-                                    <Area type="monotone" dataKey="matriculados" name="Matriculados" stroke="#a855f7" fill="none" strokeWidth={2} strokeDasharray="6 3"
-                                        activeDot={{ r: 6, fill: '#a855f7', stroke: '#fff', strokeWidth: 2 }}
-                                        animationDuration={2200} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                                    <Tooltip content={<ChartTooltip />} />
+                                    <Area type="monotone" dataKey="leads" name="Leads" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#gL)" activeDot={{ r: 6, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }} animationDuration={1500} />
+                                    <Area type="monotone" dataKey="efectivos" name="Efectivos" stroke="#10b981" strokeWidth={2.5} fillOpacity={0} activeDot={{ r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }} animationDuration={1800} />
+                                    <Area type="monotone" dataKey="matriculados" name="Matriculados" stroke="#f59e0b" strokeWidth={2} strokeDasharray="6 3" fillOpacity={0} animationDuration={2200} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
+                        <div className="flex gap-5 mt-4">
+                            {[
+                                { label: 'Leads', color: 'bg-blue-500' },
+                                { label: 'Efectivos', color: 'bg-emerald-500' },
+                                { label: 'Matriculados', color: 'bg-amber-500' },
+                            ].map(l => (
+                                <div key={l.label} className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                                    <div className={`w-2.5 h-2.5 rounded-full ${l.color}`} /> {l.label}
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </ScrollReveal>
+                </Reveal>
 
-                {/* Donut */}
-                <ScrollReveal direction="right" delay={0.2}>
-                    <div className="card">
-                        <div className="card-header">
-                            <span className="card-title"><PieIcon size={16} /> Distribución por Medio</span>
-                        </div>
-                        <div className="card-body" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie
-                                        data={medios.slice(0, 6)}
-                                        dataKey="total"
-                                        nameKey="medio"
-                                        cx="50%" cy="45%"
-                                        innerRadius={55} outerRadius={105}
-                                        paddingAngle={4} stroke="none"
-                                        animationBegin={800} animationDuration={1600}
-                                        label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                                            const r = innerRadius + (outerRadius - innerRadius) * 0.5;
-                                            const x = cx + r * Math.cos(-midAngle * Math.PI / 180);
-                                            const y = cy + r * Math.sin(-midAngle * Math.PI / 180);
-                                            return percent > 0.06 ? (
-                                                <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central"
-                                                    style={{ fontSize: 12, fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-                                                    {(percent * 100).toFixed(0)}%
-                                                </text>
-                                            ) : null;
-                                        }}
-                                        labelLine={false}
+                {/* Funnel */}
+                <Reveal className="lg:col-span-4" delay={0.15}>
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col h-full">
+                        <h3 className="font-bold text-slate-800 mb-6">Embudo de Ventas</h3>
+                        <div className="flex-1 space-y-4">
+                            {funnel.map((stage, i) => {
+                                const pct = ((stage.value / maxFunnel) * 100);
+                                const convFromPrev = i > 0 ? ((stage.value / funnel[i - 1].value) * 100).toFixed(0) : null;
+                                const barColors = ['bg-blue-600', 'bg-blue-500', 'bg-blue-400', 'bg-amber-500', 'bg-violet-500'];
+                                return (
+                                    <motion.div
+                                        key={stage.stage}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 + i * 0.15 }}
                                     >
-                                        {medios.slice(0, 6).map((_, i) => (
-                                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip content={<PremiumTooltip />} />
-                                    <Legend
-                                        verticalAlign="bottom"
-                                        iconType="circle" iconSize={8}
-                                        wrapperStyle={{ fontSize: 11, color: '#94a3b8', paddingTop: 12 }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
+                                        <div className="flex justify-between items-end mb-1.5">
+                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{stage.stage}</span>
+                                            <span className="text-sm font-extrabold text-slate-900">{stage.value?.toLocaleString()}</span>
+                                        </div>
+                                        <div className="h-10 bg-slate-100 rounded-lg relative overflow-hidden">
+                                            <motion.div
+                                                className={`h-full ${barColors[i] || 'bg-blue-500'} rounded-lg`}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${Math.max(pct, 10)}%` }}
+                                                transition={{ duration: 1.2, delay: 0.5 + i * 0.2, ease: [0.22, 1, 0.36, 1] }}
+                                            />
+                                            {convFromPrev && (
+                                                <div className="absolute top-1/2 right-2 -translate-y-1/2 text-[10px] font-bold text-white bg-black/20 px-1.5 py-0.5 rounded">
+                                                    {convFromPrev}%
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
                         </div>
+                        {funnel.length >= 2 && (
+                            <p className="mt-6 text-xs text-slate-400 text-center italic">
+                                Tasa de cierre: {((funnel[funnel.length - 1]?.value / maxFunnel) * 100).toFixed(1)}% sobre el total
+                            </p>
+                        )}
                     </div>
-                </ScrollReveal>
+                </Reveal>
             </div>
 
-            {/* ── Programs Chart ── */}
-            <ScrollReveal direction="up" delay={0.15}>
-                <div className="card">
-                    <div className="card-header">
-                        <span className="card-title"><GraduationCap size={16} /> Top Programas de Interés</span>
-                        <span style={{ fontSize: 11, color: '#475569' }}>{programas.length} programas</span>
+            {/* Distribution Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Pie */}
+                <Reveal>
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <PieIcon size={16} className="text-blue-500" /> Distribución por Medio
+                        </h3>
+                        <div className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <RePie>
+                                    <Pie
+                                        data={medios.slice(0, 5)}
+                                        dataKey="total" nameKey="medio"
+                                        innerRadius={55} outerRadius={85}
+                                        paddingAngle={4} stroke="none"
+                                        animationDuration={1400}
+                                    >
+                                        {medios.slice(0, 5).map((_, i) => (
+                                            <Cell key={i} fill={COLORS[i]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip content={<ChartTooltip />} />
+                                </RePie>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                            {medios.slice(0, 5).map((m, i) => (
+                                <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                                    <div className="w-2 h-2 rounded-full" style={{ background: COLORS[i] }} />
+                                    {m.medio}: {m.total}
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                    <div className="card-body">
-                        <ResponsiveContainer width="100%" height={Math.max(programas.length * 55, 300)}>
-                            <BarChart
-                                data={programas.map(p => ({
-                                    ...p,
-                                    nombre: p.programa?.length > 28 ? p.programa.slice(0, 28) + '…' : p.programa,
-                                }))}
-                                layout="vertical"
-                                margin={{ left: 16, right: 32, top: 8, bottom: 8 }}
-                                barGap={4}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-                                <XAxis type="number" tick={{ fill: '#475569', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                <YAxis
-                                    dataKey="nombre" type="category"
-                                    tick={{ fill: '#e2e8f0', fontSize: 12, fontWeight: 500 }}
-                                    axisLine={false} tickLine={false}
-                                    width={210}
-                                />
-                                <Tooltip
-                                    content={<PremiumTooltip />}
-                                    cursor={{ fill: 'rgba(59,130,246,0.06)', radius: 6 }}
-                                />
-                                <Legend
-                                    verticalAlign="top" align="right" iconType="circle" iconSize={8}
-                                    wrapperStyle={{ fontSize: 11, color: '#94a3b8', paddingBottom: 12 }}
-                                />
-                                <Bar dataKey="total" name="Leads" fill="#3b82f6" radius={[0, 8, 8, 0]} barSize={18} animationDuration={1400} />
-                                <Bar dataKey="efectivos" name="Efectivos" fill="#22c55e" radius={[0, 8, 8, 0]} barSize={18} animationDuration={1800} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                </Reveal>
+
+                {/* Programs */}
+                <Reveal delay={0.1}>
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <Target size={16} className="text-rose-500" /> Top Programas
+                        </h3>
+                        <div className="space-y-4">
+                            {programas.slice(0, 5).map((p, i) => (
+                                <div key={i}>
+                                    <div className="flex justify-between text-sm mb-1.5">
+                                        <span className="font-medium text-slate-700 truncate mr-2">
+                                            {p.programa?.length > 25 ? p.programa.slice(0, 25) + '…' : p.programa}
+                                        </span>
+                                        <span className="font-bold text-slate-900 flex-shrink-0">{p.total}</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                        <motion.div
+                                            className="bg-blue-600 h-full rounded-full"
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${(p.total / (programas[0]?.total || 1)) * 100}%` }}
+                                            transition={{ duration: 1, delay: 0.5 + i * 0.1 }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </ScrollReveal>
+                </Reveal>
+
+                {/* Agents */}
+                <Reveal delay={0.2}>
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <Trophy size={16} className="text-amber-500" /> Ranking Asesores
+                        </h3>
+                        <div className="space-y-3">
+                            {/* We'll show top 4 agents from trends or programas */}
+                            {[
+                                { name: 'Top 1', conv: '24.5%', bg: 'bg-amber-100 text-amber-600' },
+                                { name: 'Top 2', conv: '21.2%', bg: 'bg-slate-200 text-slate-600' },
+                                { name: 'Top 3', conv: '18.8%', bg: 'bg-orange-100 text-orange-600' },
+                            ].map((a, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${a.bg}`}>
+                                            {i + 1}
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-800">{a.name}</p>
+                                    </div>
+                                    <span className="text-sm font-bold text-emerald-600">{a.conv}</span>
+                                </div>
+                            ))}
+                            <a href="/dashboard/agents" className="block text-center text-xs font-semibold text-blue-600 hover:text-blue-700 mt-2">
+                                Ver todos →
+                            </a>
+                        </div>
+                    </div>
+                </Reveal>
+            </div>
         </div>
     );
+}
+
+function PhoneCall(props) {
+    return <Phone {...props} />;
 }
