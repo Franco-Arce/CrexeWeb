@@ -11,8 +11,18 @@ from groq import Groq
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+_client = None
 MODEL = "llama-3.3-70b-versatile"
+
+
+def get_groq():
+    global _client
+    if _client is None:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise Exception("GROQ_API_KEY not configured")
+        _client = Groq(api_key=api_key)
+    return _client
 
 
 def _get_data_context() -> str:
@@ -74,7 +84,7 @@ async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
 
     messages.append({"role": "user", "content": body.message})
 
-    chat = client.chat.completions.create(model=MODEL, messages=messages, temperature=0.3, max_tokens=800)
+    chat = get_groq().chat.completions.create(model=MODEL, messages=messages, temperature=0.3, max_tokens=800)
     return {"response": chat.choices[0].message.content}
 
 
@@ -82,7 +92,7 @@ async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
 async def ai_insights(_user: str = Depends(require_auth)):
     context = _get_data_context()
 
-    chat = client.chat.completions.create(
+    chat = get_groq().chat.completions.create(
         model=MODEL,
         messages=[
             {
@@ -117,7 +127,7 @@ async def ai_insights(_user: str = Depends(require_auth)):
 async def ai_predictions(_user: str = Depends(require_auth)):
     context = _get_data_context()
 
-    chat = client.chat.completions.create(
+    chat = get_groq().chat.completions.create(
         model=MODEL,
         messages=[
             {
