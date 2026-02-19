@@ -17,7 +17,7 @@ export default function LoginPage() {
         setError('');
         try {
             const res = await api.login(username, password);
-            localStorage.setItem('crexe_token', res.access_token);
+            localStorage.setItem('crexe_token', res.token);
             navigate('/dashboard');
         } catch {
             setError('Credenciales inválidas');
