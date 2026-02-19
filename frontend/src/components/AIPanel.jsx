@@ -24,7 +24,7 @@ export default function AIPanel({ onClose }) {
     const messagesEnd = useRef(null);
 
     useEffect(() => {
-        messagesEnd.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, [messages]);
 
     const sendMessage = async () => {

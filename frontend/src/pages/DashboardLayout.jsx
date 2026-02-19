@@ -101,16 +101,14 @@ export default function DashboardLayout() {
                     </div>
                 </header>
 
-                <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-                    <main className="page-content">
-                        <Outlet />
-                    </main>
-
-                    <AnimatePresence>
-                        {showAI && <AIPanel onClose={() => setShowAI(false)} />}
-                    </AnimatePresence>
-                </div>
+                <main className="page-content">
+                    <Outlet />
+                </main>
             </div>
+
+            <AnimatePresence>
+                {showAI && <AIPanel onClose={() => setShowAI(false)} />}
+            </AnimatePresence>
         </div>
     );
 }

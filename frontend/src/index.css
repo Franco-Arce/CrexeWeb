@@ -910,14 +910,16 @@ select {
 
 .ai-panel {
   width: 380px;
-  min-width: 380px;
   background: var(--bg-surface);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  position: sticky;
+  position: fixed;
   top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.4);
 }
 
 .ai-panel-header {
