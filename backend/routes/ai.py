@@ -41,15 +41,19 @@ def _groq_chat(messages: list, temperature: float = 0.3, max_tokens: int = 800) 
 
 
 def _get_data_context() -> str:
-    """Build a summary of current data for AI context."""
+    """Build a comprehensive summary of current data for AI context."""
     contacts = get_contacts()
     total = len(contacts)
     contactados = sum(1 for c in contacts if c["resultado_gestion"] == "Contactado")
     no_contactados = sum(1 for c in contacts if c["resultado_gestion"] == "No Contactado")
     efectivo = sum(1 for c in contacts if c["resultado_gestion"] == "Contacto Efectivo")
+    matriculados = sum(1 for c in contacts if c.get("_is_matriculado"))
 
-    medio_counts = Counter(c["medio"] for c in contacts).most_common(5)
-    prog_counts = Counter(c["programa_interes"] for c in contacts if c.get("programa_interes")).most_common(5)
+    medio_counts = Counter(c["medio"] for c in contacts).most_common(10)
+    prog_counts = Counter(c["programa_interes"] for c in contacts if c.get("programa_interes")).most_common(10)
+
+    # Agent performance
+    agent_counts = Counter(c.get("usuario", "Sin asignar") for c in contacts).most_common(10)
 
     weekly = defaultdict(int)
     for c in contacts:
@@ -59,16 +63,30 @@ def _get_data_context() -> str:
             weekly[week_start] += 1
     recent_weeks = sorted(weekly.items(), reverse=True)[:8]
 
+    # Funnel with conversion rates
+    funnel = [
+        {"etapa": "Leads", "valor": total},
+        {"etapa": "Contactados", "valor": contactados},
+        {"etapa": "Contacto Efectivo", "valor": efectivo},
+        {"etapa": "Matriculados", "valor": matriculados},
+    ]
+
     return json.dumps({
         "kpis": {
             "total_leads": total,
             "contactados": contactados,
             "no_contactados": no_contactados,
             "contacto_efectivo": efectivo,
+            "matriculados": matriculados,
+            "tasa_contacto": f"{(contactados / total * 100):.1f}%" if total else "0%",
+            "tasa_efectividad": f"{(efectivo / contactados * 100):.1f}%" if contactados else "0%",
+            "tasa_matriculacion": f"{(matriculados / total * 100):.1f}%" if total else "0%",
         },
+        "embudo_conversion": funnel,
         "top_medios": [{"medio": m, "total": t} for m, t in medio_counts],
         "tendencia_semanal": [{"semana": s, "leads": l} for s, l in recent_weeks],
         "top_programas": [{"programa": p, "total": t} for p, t in prog_counts],
+        "top_agentes": [{"agente": a, "gestiones": g} for a, g in agent_counts],
     }, default=str, ensure_ascii=False)
 
 
