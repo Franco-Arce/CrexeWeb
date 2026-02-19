@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* ── Base ── */
@@ -9,7 +8,6 @@
 }
 
 html {
-  font-size: 14px;
   scroll-behavior: smooth;
 }
 
@@ -55,7 +53,7 @@ body {
   }
 }
 
-/* ── Recharts tooltip override ── */
+/* ── Recharts ── */
 .recharts-tooltip-wrapper {
   z-index: 50 !important;
 }

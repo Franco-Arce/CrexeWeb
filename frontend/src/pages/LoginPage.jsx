@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, Mail, TrendingUp } from 'lucide-react';
+import { Lock, User, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ export default function LoginPage() {
         setLoading(true);
         setError('');
         try {
-            const res = await api.login(email, password);
+            const res = await api.login(username, password);
             localStorage.setItem('crexe_token', res.access_token);
             navigate('/dashboard');
         } catch {
@@ -55,12 +55,12 @@ export default function LoginPage() {
 
                     <div>
                         <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">
-                            <Mail size={12} /> Email
+                            <User size={12} /> Usuario
                         </label>
                         <input
-                            type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
+                            type="text" value={username} onChange={(e) => setUsername(e.target.value)} required
                             className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                            placeholder="tu@email.com"
+                            placeholder="Tu usuario"
                         />
                     </div>
 
