@@ -20,7 +20,7 @@ def get_groq():
     if _client is None:
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
-            raise Exception("GROQ_API_KEY not configured")
+            raise Exception("GROQ_API_KEY no configurada")
         _client = Groq(api_key=api_key)
     return _client
 
@@ -65,94 +65,106 @@ class ChatRequest(BaseModel):
 
 @router.post("/chat")
 async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
-    context = _get_data_context()
+    try:
+        context = _get_data_context()
 
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "Eres un analista de datos experto del contact center Crexe. "
-                "Respondes preguntas sobre leads, gestión y conversión usando los datos reales. "
-                "Sé conciso, usa números y porcentajes. Responde en español.\n\n"
-                f"DATOS ACTUALES:\n{context}"
-            ),
-        }
-    ]
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un analista de datos experto del contact center Crexe. "
+                    "Respondes preguntas sobre leads, gestión y conversión usando los datos reales. "
+                    "Sé conciso, usa números y porcentajes. Responde en español.\n\n"
+                    f"DATOS ACTUALES:\n{context}"
+                ),
+            }
+        ]
 
-    for h in (body.history or [])[-6:]:
-        messages.append({"role": h.get("role", "user"), "content": h.get("content", "")})
+        for h in (body.history or [])[-6:]:
+            messages.append({"role": h.get("role", "user"), "content": h.get("content", "")})
 
-    messages.append({"role": "user", "content": body.message})
+        messages.append({"role": "user", "content": body.message})
 
-    chat = get_groq().chat.completions.create(model=MODEL, messages=messages, temperature=0.3, max_tokens=800)
-    return {"response": chat.choices[0].message.content}
+        chat = get_groq().chat.completions.create(model=MODEL, messages=messages, temperature=0.3, max_tokens=800)
+        return {"response": chat.choices[0].message.content}
+    except Exception as e:
+        print(f"[AI Chat Error] {e}")
+        return {"response": f"Lo siento, hubo un error al procesar tu pregunta: {str(e)[:100]}. Intentá de nuevo."}
 
 
 @router.get("/insights")
 async def ai_insights(_user: str = Depends(require_auth)):
-    context = _get_data_context()
-
-    chat = get_groq().chat.completions.create(
-        model=MODEL,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "Eres un analista de datos del contact center Crexe. "
-                    "Genera exactamente 4 insights breves y accionables basados en los datos. "
-                    "Formato JSON: [{\"icon\": \"trending_up|trending_down|alert|star\", \"title\": \"...\", \"description\": \"...\"}]. "
-                    "Responde SOLO el JSON, sin texto adicional. Responde en español."
-                ),
-            },
-            {"role": "user", "content": f"Datos actuales:\n{context}\n\nGenera 4 insights:"},
-        ],
-        temperature=0.4,
-        max_tokens=600,
-    )
-
-    raw = chat.choices[0].message.content.strip()
     try:
-        if "```" in raw:
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        insights = json.loads(raw)
-    except (json.JSONDecodeError, IndexError):
-        insights = [{"icon": "alert", "title": "Sin datos suficientes", "description": raw[:200]}]
+        context = _get_data_context()
 
-    return {"insights": insights}
+        chat = get_groq().chat.completions.create(
+            model=MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres un analista de datos del contact center Crexe. "
+                        "Genera exactamente 4 insights breves y accionables basados en los datos. "
+                        "Formato JSON: [{\"icon\": \"trending_up|trending_down|alert|star\", \"title\": \"...\", \"description\": \"...\"}]. "
+                        "Responde SOLO el JSON, sin texto adicional. Responde en español."
+                    ),
+                },
+                {"role": "user", "content": f"Datos actuales:\n{context}\n\nGenera 4 insights:"},
+            ],
+            temperature=0.4,
+            max_tokens=600,
+        )
+
+        raw = chat.choices[0].message.content.strip()
+        try:
+            if "```" in raw:
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+            insights = json.loads(raw)
+        except (json.JSONDecodeError, IndexError):
+            insights = [{"icon": "alert", "title": "Sin datos suficientes", "description": raw[:200]}]
+
+        return {"insights": insights}
+    except Exception as e:
+        print(f"[AI Insights Error] {e}")
+        return {"insights": [{"icon": "alert", "title": "Error", "description": f"No se pudieron generar insights: {str(e)[:100]}"}]}
 
 
 @router.get("/predictions")
 async def ai_predictions(_user: str = Depends(require_auth)):
-    context = _get_data_context()
-
-    chat = get_groq().chat.completions.create(
-        model=MODEL,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "Eres un analista predictivo del contact center Crexe. "
-                    "Basándote en las tendencias de las últimas semanas, predice los próximos 4 períodos. "
-                    "Formato JSON: [{\"period\": \"Semana X\", \"predicted_leads\": N, \"predicted_efectivos\": N, \"confidence\": 0.0-1.0}]. "
-                    "Responde SOLO el JSON, sin texto adicional."
-                ),
-            },
-            {"role": "user", "content": f"Tendencia histórica:\n{context}\n\nPredice las próximas 4 semanas:"},
-        ],
-        temperature=0.3,
-        max_tokens=400,
-    )
-
-    raw = chat.choices[0].message.content.strip()
     try:
-        if "```" in raw:
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        predictions = json.loads(raw)
-    except (json.JSONDecodeError, IndexError):
-        predictions = []
+        context = _get_data_context()
 
-    return {"predictions": predictions}
+        chat = get_groq().chat.completions.create(
+            model=MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres un analista predictivo del contact center Crexe. "
+                        "Basándote en las tendencias de las últimas semanas, predice los próximos 4 períodos. "
+                        "Formato JSON: [{\"period\": \"Semana X\", \"predicted_leads\": N, \"predicted_efectivos\": N, \"confidence\": 0.0-1.0}]. "
+                        "Responde SOLO el JSON, sin texto adicional."
+                    ),
+                },
+                {"role": "user", "content": f"Tendencia histórica:\n{context}\n\nPredice las próximas 4 semanas:"},
+            ],
+            temperature=0.3,
+            max_tokens=400,
+        )
+
+        raw = chat.choices[0].message.content.strip()
+        try:
+            if "```" in raw:
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+            predictions = json.loads(raw)
+        except (json.JSONDecodeError, IndexError):
+            predictions = []
+
+        return {"predictions": predictions}
+    except Exception as e:
+        print(f"[AI Predictions Error] {e}")
+        return {"predictions": []}
