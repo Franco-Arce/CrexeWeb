@@ -1,94 +1,116 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-    LayoutDashboard, Filter, Users, UserCheck, Brain,
-    LogOut, Menu, ChevronLeft, Sparkles,
+    LayoutDashboard, Funnel, Users, Trophy, Brain,
+    ChevronLeft, ChevronRight, LogOut, Sparkles,
 } from 'lucide-react';
 import AIPanel from '../components/AIPanel';
 
 const NAV = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
-    { to: '/dashboard/funnel', icon: Filter, label: 'Funnel' },
-    { to: '/dashboard/leads', icon: Users, label: 'Leads' },
-    { to: '/dashboard/agents', icon: UserCheck, label: 'Agentes' },
+    { to: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Overview', end: true },
+    { to: '/dashboard/funnel', icon: <Funnel size={18} />, label: 'Embudo' },
+    { to: '/dashboard/leads', icon: <Users size={18} />, label: 'Leads' },
+    { to: '/dashboard/agents', icon: <Trophy size={18} />, label: 'Agentes' },
 ];
+
+const PAGE_TITLES = {
+    '/dashboard': 'Overview',
+    '/dashboard/funnel': 'Embudo de Conversión',
+    '/dashboard/leads': 'Gestión de Leads',
+    '/dashboard/agents': 'Performance de Agentes',
+};
 
 export default function DashboardLayout() {
     const [collapsed, setCollapsed] = useState(false);
-    const [aiOpen, setAiOpen] = useState(false);
+    const [showAI, setShowAI] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
-    const pageTitle = () => {
-        const p = location.pathname;
-        if (p.includes('funnel')) return 'Funnel de Gestión';
-        if (p.includes('leads')) return 'Leads';
-        if (p.includes('agents')) return 'Performance de Agentes';
-        return 'Overview';
-    };
-
-    const handleLogout = () => {
+    const logout = () => {
         localStorage.removeItem('crexe_token');
-        localStorage.removeItem('crexe_user');
         navigate('/');
     };
 
+    const title = PAGE_TITLES[location.pathname] || 'Dashboard';
+
     return (
-        <div className="app-layout">
-            <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-                <div className="sidebar-header">
-                    <div className="sidebar-brand">
-                        <div className="brand-icon">C</div>
-                        <span className="brand-text">CrexeWeb</span>
-                    </div>
+        <div className="dashboard-layout">
+            {/* ── Sidebar ── */}
+            <motion.aside
+                className={`sidebar ${collapsed ? 'collapsed' : ''}`}
+                initial={false}
+                animate={{ width: collapsed ? 72 : 260 }}
+                transition={{ duration: 0.25 }}
+            >
+                <div className="sidebar-brand">
+                    <div className="sidebar-brand-icon">⚡</div>
+                    {!collapsed && (
+                        <div className="sidebar-brand-text">
+                            <h2>CrexeWeb</h2>
+                            <span>Dashboard IA</span>
+                        </div>
+                    )}
                 </div>
+
                 <nav className="sidebar-nav">
-                    {NAV.map(({ to, icon: Icon, label }) => (
+                    {NAV.map((item) => (
                         <NavLink
-                            key={to}
-                            to={to}
-                            end={to === '/dashboard'}
+                            key={item.to}
+                            to={item.to}
+                            end={item.end}
                             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                         >
-                            <Icon size={18} />
-                            {label}
+                            {item.icon}
+                            {!collapsed && <span>{item.label}</span>}
                         </NavLink>
                     ))}
                 </nav>
+
                 <div className="sidebar-footer">
-                    <button className="nav-item" onClick={handleLogout}>
+                    <button className="nav-item" onClick={() => setCollapsed(!collapsed)}>
+                        {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+                        {!collapsed && <span>Colapsar</span>}
+                    </button>
+                    <button className="nav-item" onClick={logout} style={{ color: '#ef4444' }}>
                         <LogOut size={18} />
-                        Cerrar sesión
+                        {!collapsed && <span>Cerrar Sesión</span>}
                     </button>
                 </div>
-            </aside>
+            </motion.aside>
 
-            <div className="main-content" style={{ marginLeft: collapsed ? 0 : 260 }}>
-                <header className="top-bar">
-                    <div className="top-bar-left">
-                        <button className="toggle-btn" onClick={() => setCollapsed(!collapsed)}>
-                            {collapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
-                        </button>
-                        <h2>{pageTitle()}</h2>
+            {/* ── Main Content ── */}
+            <div className="main-content">
+                <header className="topbar">
+                    <div className="topbar-left">
+                        <h1 className="topbar-title">{title}</h1>
                     </div>
-                    <div className="top-bar-right">
+                    <div className="topbar-right">
                         <button
-                            className="toggle-btn"
-                            onClick={() => setAiOpen(!aiOpen)}
-                            style={aiOpen ? { background: 'var(--accent-glow)', borderColor: 'var(--accent)' } : {}}
-                            title="IA Asistente"
+                            className="topbar-btn"
+                            onClick={() => setShowAI(!showAI)}
+                            style={{
+                                background: showAI ? 'var(--accent-glow)' : 'transparent',
+                                borderColor: showAI ? 'var(--accent)' : 'var(--border)',
+                                color: showAI ? 'var(--accent-light)' : 'var(--text-secondary)',
+                            }}
+                            title="Asistente IA"
                         >
-                            <Sparkles size={16} style={{ color: aiOpen ? 'var(--accent)' : undefined }} />
+                            <Sparkles size={16} />
                         </button>
                     </div>
                 </header>
 
-                <div className="page-content">
-                    <Outlet />
+                <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                    <main className="page-content">
+                        <Outlet />
+                    </main>
+
+                    <AnimatePresence>
+                        {showAI && <AIPanel onClose={() => setShowAI(false)} />}
+                    </AnimatePresence>
                 </div>
             </div>
-
-            {aiOpen && <AIPanel onClose={() => setAiOpen(false)} />}
         </div>
     );
 }
