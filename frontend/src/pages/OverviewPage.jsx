@@ -150,7 +150,7 @@ export default function OverviewPage() {
         { label: 'No Contactados', value: kpis?.no_contactados, icon: UserX, trend: -5 },
         { label: 'Contacto Efectivo', value: kpis?.contacto_efectivo, icon: UserCheck, trend: 15 },
         { label: 'Matriculados', value: kpis?.matriculados, icon: GraduationCap, trend: 22 },
-        { label: 'Conversión', value: kpis?.total_leads ? ((kpis.matriculados / kpis.total_leads) * 100).toFixed(1) : '0', icon: TrendingUp, suffix: '%', trend: 4 },
+        { label: 'Conversión', value: kpis?.total_leads ? ((kpis.matriculados / kpis.total_leads) * 100).toFixed(2) : '0', icon: TrendingUp, suffix: '%', trend: 4 },
     ];
 
     const maxFunnel = funnel[0]?.value || 1;
@@ -189,8 +189,8 @@ export default function OverviewPage() {
                                         key={p.key}
                                         onClick={() => setPeriod(p.key)}
                                         className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${period === p.key
-                                                ? 'bg-white text-blue-600 shadow-sm'
-                                                : 'text-slate-500 hover:text-slate-700'
+                                            ? 'bg-white text-blue-600 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
                                         {p.label}

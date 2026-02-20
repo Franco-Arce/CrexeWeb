@@ -38,7 +38,7 @@ export default function FunnelPage() {
 
     const maxVal = data[0]?.value || 1;
     const totalConversion = data.length >= 2
-        ? ((data[data.length - 1].value / data[0].value) * 100).toFixed(1)
+        ? ((data[data.length - 1].value / data[0].value) * 100).toFixed(2)
         : '0';
 
     return (
@@ -70,8 +70,8 @@ export default function FunnelPage() {
                                     <div className="flex items-center justify-center py-2">
                                         <ArrowDown size={16} className="text-slate-300" />
                                         <span className={`ml-2 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${parseFloat(convFromPrev) > 50 ? 'bg-emerald-100 text-emerald-700' :
-                                                parseFloat(convFromPrev) > 25 ? 'bg-amber-100 text-amber-700' :
-                                                    'bg-red-100 text-red-600'
+                                            parseFloat(convFromPrev) > 25 ? 'bg-amber-100 text-amber-700' :
+                                                'bg-red-100 text-red-600'
                                             }`}>
                                             {convFromPrev}% pasan
                                         </span>
@@ -135,8 +135,8 @@ export default function FunnelPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 + i * 0.1 }}
                             className={`p-5 rounded-2xl text-center border shadow-sm ${isGood ? 'bg-emerald-50 border-emerald-100' :
-                                    isMid ? 'bg-amber-50 border-amber-100' :
-                                        'bg-red-50 border-red-100'
+                                isMid ? 'bg-amber-50 border-amber-100' :
+                                    'bg-red-50 border-red-100'
                                 }`}
                         >
                             <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">

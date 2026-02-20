@@ -26,7 +26,7 @@ async def get_kpis(
     query = f"""
         SELECT 
             COUNT(*) as total_leads,
-            COUNT(*) FILTER (WHERE resultado_gestion = 'Contactado') as contactados,
+            COUNT(*) FILTER (WHERE resultado_gestion IN ('Contactado', 'Contacto Efectivo')) as contactados,
             COUNT(*) FILTER (WHERE resultado_gestion = 'No Contactado') as no_contactados,
             COUNT(*) FILTER (WHERE resultado_gestion = 'Contacto Efectivo') as contacto_efectivo,
             COUNT(*) FILTER (WHERE ultima_subcategoria = '116') as matriculados,
