@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import {
     Users, UserCheck, UserX, GraduationCap, Phone, TrendingUp,
-    BarChart3, PieChart as PieIcon, Target, ArrowUpRight, ArrowDownRight,
+    BarChart3, PieChart as PieIcon, Target, ArrowUpRight, ArrowDownRight, Trophy,
 } from 'lucide-react';
 import api from '../api';
 
@@ -190,8 +190,8 @@ export default function OverviewPage() {
                                         key={p.key}
                                         onClick={() => setPeriod(p.key)}
                                         className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${period === p.key
-                                                ? 'bg-white text-blue-600 shadow-sm'
-                                                : 'text-slate-500 hover:text-slate-700'
+                                            ? 'bg-white text-blue-600 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
                                         {p.label}
