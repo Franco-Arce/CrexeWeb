@@ -3,10 +3,28 @@ import { motion } from 'framer-motion';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
-import { Funnel, ArrowDown, TrendingUp, Target } from 'lucide-react';
+import { Funnel, ArrowDown, Target } from 'lucide-react';
 import api from '../api';
 
+const STAGE_GRADIENTS = [
+    'from-blue-600 to-blue-500',
+    'from-indigo-600 to-indigo-500',
+    'from-emerald-600 to-emerald-500',
+    'from-amber-500 to-amber-400',
+    'from-violet-600 to-violet-500',
+];
 const BAR_COLORS = ['#3b82f6', '#6366f1', '#10b981', '#f59e0b', '#8b5cf6'];
+
+const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload?.length) return null;
+    const d = payload[0];
+    return (
+        <div className="bg-slate-900 text-white rounded-xl px-4 py-3 shadow-2xl border border-slate-700">
+            <p className="text-xs text-slate-400 mb-1">{d.payload?.stage}</p>
+            <p className="text-lg font-extrabold">{d.value?.toLocaleString()}</p>
+        </div>
+    );
+};
 
 export default function FunnelPage() {
     const [data, setData] = useState([]);
@@ -33,28 +51,27 @@ export default function FunnelPage() {
                     </h2>
                     <p className="text-sm text-slate-400 mt-0.5">Flujo completo de leads hasta matriculación</p>
                 </div>
-                <div className="bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm">
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Conversión Total</span>
-                    <p className="text-2xl font-extrabold text-emerald-600">{totalConversion}%</p>
+                <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-5 py-3 rounded-2xl shadow-lg shadow-emerald-500/20">
+                    <span className="text-[10px] font-semibold text-emerald-100 uppercase tracking-wider">Conversión Total</span>
+                    <p className="text-2xl font-extrabold text-white">{totalConversion}%</p>
                 </div>
             </div>
 
             {/* Visual Funnel */}
             <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-                <div className="max-w-2xl mx-auto space-y-2">
+                <div className="max-w-2xl mx-auto space-y-1">
                     {data.map((stage, i) => {
-                        const widthPct = Math.max((stage.value / maxVal) * 100, 15);
+                        const widthPct = Math.max((stage.value / maxVal) * 100, 20);
                         const convFromPrev = i > 0 ? ((stage.value / data[i - 1].value) * 100).toFixed(1) : null;
 
                         return (
                             <div key={stage.stage}>
-                                {/* Conversion arrow */}
                                 {i > 0 && (
-                                    <div className="flex items-center justify-center py-1.5">
-                                        <ArrowDown size={18} className="text-slate-300" />
-                                        <span className={`ml-2 text-xs font-bold px-2.5 py-0.5 rounded-full ${parseFloat(convFromPrev) > 50 ? 'bg-emerald-50 text-emerald-600' :
-                                                parseFloat(convFromPrev) > 25 ? 'bg-amber-50 text-amber-600' :
-                                                    'bg-red-50 text-red-500'
+                                    <div className="flex items-center justify-center py-2">
+                                        <ArrowDown size={16} className="text-slate-300" />
+                                        <span className={`ml-2 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${parseFloat(convFromPrev) > 50 ? 'bg-emerald-100 text-emerald-700' :
+                                                parseFloat(convFromPrev) > 25 ? 'bg-amber-100 text-amber-700' :
+                                                    'bg-red-100 text-red-600'
                                             }`}>
                                             {convFromPrev}% pasan
                                         </span>
@@ -68,13 +85,11 @@ export default function FunnelPage() {
                                     animate={{ width: `${widthPct}%`, opacity: 1 }}
                                     transition={{ duration: 1, delay: i * 0.2, ease: [0.22, 1, 0.36, 1] }}
                                 >
-                                    <div
-                                        className="relative rounded-xl px-5 py-4 text-white text-center overflow-hidden"
-                                        style={{ background: BAR_COLORS[i] || BAR_COLORS[0] }}
-                                    >
+                                    <div className={`relative rounded-2xl px-5 py-5 text-white text-center overflow-hidden bg-gradient-to-r ${STAGE_GRADIENTS[i]} shadow-lg`}>
+                                        <div className="absolute inset-0 bg-white/5" />
                                         <div className="relative z-10">
-                                            <p className="text-xs font-semibold opacity-80 mb-0.5">{stage.stage}</p>
-                                            <p className="text-2xl font-extrabold">{stage.value?.toLocaleString()}</p>
+                                            <p className="text-[11px] font-semibold uppercase tracking-wider opacity-80 mb-1">{stage.stage}</p>
+                                            <p className="text-3xl font-extrabold">{stage.value?.toLocaleString()}</p>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -95,9 +110,7 @@ export default function FunnelPage() {
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                             <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                            <Tooltip
-                                contentStyle={{ borderRadius: '12px', border: '1px solid #f1f5f9', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
-                            />
+                            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59,130,246,0.06)', radius: 8 }} />
                             <Bar dataKey="value" name="Cantidad" radius={[8, 8, 0, 0]} animationDuration={1500}>
                                 {data.map((_, i) => (
                                     <Cell key={i} fill={BAR_COLORS[i]} />
@@ -113,20 +126,23 @@ export default function FunnelPage() {
                 {data.length >= 2 && data.slice(1).map((stage, i) => {
                     const prev = data[i];
                     const conv = ((stage.value / prev.value) * 100).toFixed(1);
+                    const isGood = parseFloat(conv) > 50;
+                    const isMid = parseFloat(conv) > 25;
                     return (
                         <motion.div
                             key={stage.stage}
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 + i * 0.1 }}
-                            className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm text-center"
+                            className={`p-5 rounded-2xl text-center border shadow-sm ${isGood ? 'bg-emerald-50 border-emerald-100' :
+                                    isMid ? 'bg-amber-50 border-amber-100' :
+                                        'bg-red-50 border-red-100'
+                                }`}
                         >
-                            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
                                 {prev.stage} → {stage.stage}
                             </p>
-                            <p className={`text-3xl font-extrabold ${parseFloat(conv) > 50 ? 'text-emerald-600' :
-                                    parseFloat(conv) > 25 ? 'text-amber-500' :
-                                        'text-red-500'
+                            <p className={`text-3xl font-extrabold ${isGood ? 'text-emerald-600' : isMid ? 'text-amber-500' : 'text-red-500'
                                 }`}>{conv}%</p>
                             <p className="text-xs text-slate-400 mt-1">
                                 {prev.value?.toLocaleString()} → {stage.value?.toLocaleString()}

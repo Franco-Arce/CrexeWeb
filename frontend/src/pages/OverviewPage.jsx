@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
     AreaChart, Area, BarChart, Bar, PieChart as RePie, Pie, Cell,
-    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import {
     Users, UserCheck, UserX, GraduationCap, Phone, TrendingUp,
@@ -53,65 +53,63 @@ function Reveal({ children, delay = 0, className = '' }) {
     );
 }
 
-/* ── Premium Tooltip ── */
+/* ── Dark Tooltip ── */
 const ChartTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
-    const data = payload[0]?.payload;
-    const hasConv = data?.total && data?.efectivos;
-    const conv = hasConv ? ((data.efectivos / data.total) * 100).toFixed(1) : null;
-
     return (
-        <div className="bg-white rounded-xl border border-slate-100 shadow-xl shadow-slate-200/50 px-5 py-4 min-w-[200px]">
-            <div className="font-bold text-sm text-slate-800 mb-3 pb-2 border-b border-slate-100">
-                {data?.programa || data?.nombre || label}
-            </div>
+        <div className="bg-slate-900 text-white rounded-xl shadow-2xl px-4 py-3 border border-slate-700 min-w-[160px]">
+            <p className="text-xs text-slate-400 mb-2 pb-1.5 border-b border-slate-700">{label}</p>
             {payload.map((p, i) => (
-                <div key={i} className="flex justify-between items-center py-1 gap-4">
-                    <span className="text-slate-500 text-xs flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: p.color }} />
+                <div key={i} className="flex justify-between items-center py-0.5 gap-4">
+                    <span className="text-slate-300 text-xs flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
                         {p.name}
                     </span>
-                    <span className="font-bold text-sm" style={{ color: p.color }}>{p.value?.toLocaleString()}</span>
+                    <span className="font-bold text-sm">{p.value?.toLocaleString()}</span>
                 </div>
             ))}
-            {conv && (
-                <div className="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center">
-                    <span className="text-slate-400 text-[11px]">Conversión</span>
-                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${parseFloat(conv) > 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                        }`}>{conv}%</span>
-                </div>
-            )}
         </div>
     );
 };
 
 /* ── KPI Card ── */
-const StatCard = ({ label, value, icon: Icon, trend, color, suffix = '' }) => (
-    <motion.div
-        whileHover={{ y: -4, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)' }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm"
-    >
-        <div className="flex items-start justify-between">
-            <div>
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
-                <h3 className="text-3xl font-extrabold text-slate-900">
+const KPI_STYLES = [
+    { bg: 'bg-gradient-to-br from-blue-500 to-blue-600', shadow: 'shadow-blue-500/20' },
+    { bg: 'bg-gradient-to-br from-indigo-500 to-indigo-600', shadow: 'shadow-indigo-500/20' },
+    { bg: 'bg-gradient-to-br from-slate-400 to-slate-500', shadow: 'shadow-slate-400/20' },
+    { bg: 'bg-gradient-to-br from-emerald-500 to-emerald-600', shadow: 'shadow-emerald-500/20' },
+    { bg: 'bg-gradient-to-br from-amber-500 to-amber-600', shadow: 'shadow-amber-500/20' },
+    { bg: 'bg-gradient-to-br from-rose-500 to-rose-600', shadow: 'shadow-rose-500/20' },
+];
+
+const StatCard = ({ label, value, icon: Icon, trend, suffix = '', styleIdx = 0 }) => {
+    const style = KPI_STYLES[styleIdx] || KPI_STYLES[0];
+    return (
+        <motion.div
+            whileHover={{ y: -3, scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className={`${style.bg} p-5 rounded-2xl text-white shadow-lg ${style.shadow} relative overflow-hidden`}
+        >
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6" />
+            <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider opacity-80">{label}</p>
+                    <Icon size={16} className="opacity-60" />
+                </div>
+                <h3 className="text-2xl font-extrabold">
                     <AnimatedNumber value={value} suffix={suffix} />
                 </h3>
                 {trend != null && (
-                    <div className={`flex items-center mt-2 text-xs font-semibold ${trend > 0 ? 'text-emerald-600' : 'text-rose-500'
+                    <div className={`flex items-center mt-2 text-[11px] font-semibold ${trend > 0 ? 'text-emerald-200' : 'text-rose-200'
                         }`}>
-                        {trend > 0 ? <ArrowUpRight size={14} className="mr-0.5" /> : <ArrowDownRight size={14} className="mr-0.5" />}
+                        {trend > 0 ? <ArrowUpRight size={13} className="mr-0.5" /> : <ArrowDownRight size={13} className="mr-0.5" />}
                         {Math.abs(trend)}% vs anterior
                     </div>
                 )}
             </div>
-            <div className={`p-3 rounded-xl ${color}`}>
-                <Icon size={18} className="text-white" />
-            </div>
-        </div>
-    </motion.div>
-);
+        </motion.div>
+    );
+};
 
 export default function OverviewPage() {
     const [kpis, setKpis] = useState(null);
@@ -147,15 +145,16 @@ export default function OverviewPage() {
     );
 
     const kpiCards = [
-        { label: 'Total Leads', value: kpis?.total_leads, icon: Users, color: 'bg-blue-500', trend: 12 },
-        { label: 'Contactados', value: kpis?.contactados, icon: PhoneCall, color: 'bg-indigo-500', trend: 8 },
-        { label: 'No Contactados', value: kpis?.no_contactados, icon: UserX, color: 'bg-slate-400', trend: -5 },
-        { label: 'Contacto Efectivo', value: kpis?.contacto_efectivo, icon: UserCheck, color: 'bg-emerald-500', trend: 15 },
-        { label: 'Matriculados', value: kpis?.matriculados, icon: GraduationCap, color: 'bg-amber-500', trend: 22 },
-        { label: 'Conversión', value: kpis?.total_leads ? ((kpis.matriculados / kpis.total_leads) * 100).toFixed(1) : '0', icon: TrendingUp, color: 'bg-rose-500', suffix: '%', trend: 4 },
+        { label: 'Total Leads', value: kpis?.total_leads, icon: Users, trend: 12 },
+        { label: 'Contactados', value: kpis?.contactados, icon: Phone, trend: 8 },
+        { label: 'No Contactados', value: kpis?.no_contactados, icon: UserX, trend: -5 },
+        { label: 'Contacto Efectivo', value: kpis?.contacto_efectivo, icon: UserCheck, trend: 15 },
+        { label: 'Matriculados', value: kpis?.matriculados, icon: GraduationCap, trend: 22 },
+        { label: 'Conversión', value: kpis?.total_leads ? ((kpis.matriculados / kpis.total_leads) * 100).toFixed(1) : '0', icon: TrendingUp, suffix: '%', trend: 4 },
     ];
 
     const maxFunnel = funnel[0]?.value || 1;
+    const FUNNEL_COLORS = ['bg-blue-600', 'bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-violet-500'];
 
     return (
         <div className="space-y-6">
@@ -163,7 +162,7 @@ export default function OverviewPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {kpiCards.map((k, i) => (
                     <Reveal key={k.label} delay={i * 0.05}>
-                        <StatCard {...k} />
+                        <StatCard {...k} styleIdx={i} />
                     </Reveal>
                 ))}
             </div>
@@ -190,8 +189,8 @@ export default function OverviewPage() {
                                         key={p.key}
                                         onClick={() => setPeriod(p.key)}
                                         className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${period === p.key
-                                            ? 'bg-white text-blue-600 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
                                         {p.label}
@@ -204,16 +203,20 @@ export default function OverviewPage() {
                                 <AreaChart data={trends}>
                                     <defs>
                                         <linearGradient id="gL" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
                                             <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="gE" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                     <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                                    <Tooltip content={<ChartTooltip />} />
-                                    <Area type="monotone" dataKey="leads" name="Leads" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#gL)" activeDot={{ r: 6, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }} animationDuration={1500} />
-                                    <Area type="monotone" dataKey="efectivos" name="Efectivos" stroke="#10b981" strokeWidth={2.5} fillOpacity={0} activeDot={{ r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }} animationDuration={1800} />
+                                    <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                    <Area type="monotone" dataKey="leads" name="Leads" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#gL)" activeDot={{ r: 6, fill: '#3b82f6', stroke: '#fff', strokeWidth: 3 }} animationDuration={1500} />
+                                    <Area type="monotone" dataKey="efectivos" name="Efectivos" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#gE)" activeDot={{ r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 3 }} animationDuration={1800} />
                                     <Area type="monotone" dataKey="matriculados" name="Matriculados" stroke="#f59e0b" strokeWidth={2} strokeDasharray="6 3" fillOpacity={0} animationDuration={2200} />
                                 </AreaChart>
                             </ResponsiveContainer>
@@ -240,7 +243,6 @@ export default function OverviewPage() {
                             {funnel.map((stage, i) => {
                                 const pct = ((stage.value / maxFunnel) * 100);
                                 const convFromPrev = i > 0 ? ((stage.value / funnel[i - 1].value) * 100).toFixed(0) : null;
-                                const barColors = ['bg-blue-600', 'bg-blue-500', 'bg-blue-400', 'bg-amber-500', 'bg-violet-500'];
                                 return (
                                     <motion.div
                                         key={stage.stage}
@@ -254,13 +256,13 @@ export default function OverviewPage() {
                                         </div>
                                         <div className="h-10 bg-slate-100 rounded-lg relative overflow-hidden">
                                             <motion.div
-                                                className={`h-full ${barColors[i] || 'bg-blue-500'} rounded-lg`}
+                                                className={`h-full ${FUNNEL_COLORS[i] || 'bg-blue-500'} rounded-lg`}
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${Math.max(pct, 10)}%` }}
                                                 transition={{ duration: 1.2, delay: 0.5 + i * 0.2, ease: [0.22, 1, 0.36, 1] }}
                                             />
                                             {convFromPrev && (
-                                                <div className="absolute top-1/2 right-2 -translate-y-1/2 text-[10px] font-bold text-white bg-black/20 px-1.5 py-0.5 rounded">
+                                                <div className="absolute top-1/2 right-3 -translate-y-1/2 text-[10px] font-bold text-slate-500">
                                                     {convFromPrev}%
                                                 </div>
                                             )}
@@ -270,8 +272,8 @@ export default function OverviewPage() {
                             })}
                         </div>
                         {funnel.length >= 2 && (
-                            <p className="mt-6 text-xs text-slate-400 text-center italic">
-                                Tasa de cierre: {((funnel[funnel.length - 1]?.value / maxFunnel) * 100).toFixed(1)}% sobre el total
+                            <p className="mt-6 text-xs text-slate-400 text-center">
+                                Tasa de cierre: <span className="font-bold text-emerald-600">{((funnel[funnel.length - 1]?.value / maxFunnel) * 100).toFixed(1)}%</span>
                             </p>
                         )}
                     </div>
@@ -307,8 +309,9 @@ export default function OverviewPage() {
                         <div className="grid grid-cols-2 gap-2 mt-2">
                             {medios.slice(0, 5).map((m, i) => (
                                 <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
-                                    <div className="w-2 h-2 rounded-full" style={{ background: COLORS[i] }} />
-                                    {m.medio}: {m.total}
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i] }} />
+                                    <span className="truncate">{m.medio}</span>
+                                    <span className="ml-auto font-bold text-slate-800">{m.total}</span>
                                 </div>
                             ))}
                         </div>
@@ -330,9 +333,10 @@ export default function OverviewPage() {
                                         </span>
                                         <span className="font-bold text-slate-900 flex-shrink-0">{p.total}</span>
                                     </div>
-                                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                                         <motion.div
-                                            className="bg-blue-600 h-full rounded-full"
+                                            className="h-full rounded-full"
+                                            style={{ background: COLORS[i % COLORS.length] }}
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(p.total / (programas[0]?.total || 1)) * 100}%` }}
                                             transition={{ duration: 1, delay: 0.5 + i * 0.1 }}
@@ -351,24 +355,21 @@ export default function OverviewPage() {
                             <Trophy size={16} className="text-amber-500" /> Ranking Asesores
                         </h3>
                         <div className="space-y-3">
-                            {/* We'll show top 4 agents from trends or programas */}
                             {[
-                                { name: 'Top 1', conv: '24.5%', bg: 'bg-amber-100 text-amber-600' },
-                                { name: 'Top 2', conv: '21.2%', bg: 'bg-slate-200 text-slate-600' },
-                                { name: 'Top 3', conv: '18.8%', bg: 'bg-orange-100 text-orange-600' },
+                                { name: 'Top 1', conv: '24.5%', bg: 'bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 border-amber-200', medal: '🥇' },
+                                { name: 'Top 2', conv: '21.2%', bg: 'bg-gradient-to-r from-slate-100 to-slate-50 text-slate-600 border-slate-200', medal: '🥈' },
+                                { name: 'Top 3', conv: '18.8%', bg: 'bg-gradient-to-r from-orange-100 to-orange-50 text-orange-600 border-orange-200', medal: '🥉' },
                             ].map((a, i) => (
-                                <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                                <div key={i} className={`flex items-center justify-between p-3.5 rounded-xl border ${a.bg}`}>
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${a.bg}`}>
-                                            {i + 1}
-                                        </div>
-                                        <p className="text-sm font-bold text-slate-800">{a.name}</p>
+                                        <span className="text-lg">{a.medal}</span>
+                                        <p className="text-sm font-bold">{a.name}</p>
                                     </div>
-                                    <span className="text-sm font-bold text-emerald-600">{a.conv}</span>
+                                    <span className="text-sm font-extrabold text-emerald-600">{a.conv}</span>
                                 </div>
                             ))}
-                            <a href="/dashboard/agents" className="block text-center text-xs font-semibold text-blue-600 hover:text-blue-700 mt-2">
-                                Ver todos →
+                            <a href="/dashboard/agents" className="block text-center text-xs font-semibold text-blue-600 hover:text-blue-700 mt-3 py-2 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                                Ver ranking completo →
                             </a>
                         </div>
                     </div>
@@ -376,8 +377,4 @@ export default function OverviewPage() {
             </div>
         </div>
     );
-}
-
-function PhoneCall(props) {
-    return <Phone {...props} />;
 }
