@@ -93,7 +93,7 @@ export default function AIPanel({ onClose }) {
                         <Sparkles size={16} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-sm">IA Asistente</h3>
+                        <h3 className="font-bold text-sm">Que dice un Analista</h3>
                         <div className="flex items-center gap-1.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                             <span className="text-[10px] text-slate-400">Online</span>
@@ -112,8 +112,8 @@ export default function AIPanel({ onClose }) {
                         key={t.key}
                         onClick={() => setTab(t.key)}
                         className={`flex-1 py-3 text-xs font-semibold transition-all border-b-2 ${tab === t.key
-                                ? 'text-blue-600 border-blue-600 bg-blue-50/50'
-                                : 'text-slate-400 border-transparent hover:text-slate-600'
+                            ? 'text-blue-600 border-blue-600 bg-blue-50/50'
+                            : 'text-slate-400 border-transparent hover:text-slate-600'
                             }`}
                     >
                         {t.label}
@@ -132,8 +132,8 @@ export default function AIPanel({ onClose }) {
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className={`max-w-[88%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
-                                        ? 'bg-blue-600 text-white self-end rounded-tr-sm'
-                                        : 'bg-white text-slate-700 border border-slate-100 shadow-sm self-start rounded-tl-sm'
+                                    ? 'bg-blue-600 text-white self-end rounded-tr-sm'
+                                    : 'bg-white text-slate-700 border border-slate-100 shadow-sm self-start rounded-tl-sm'
                                     }`}
                             >
                                 {msg.content}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, User, TrendingUp } from 'lucide-react';
+import { Lock, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
@@ -37,13 +37,13 @@ export default function LoginPage() {
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
                 <div className="mb-4">
-                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-blue-500/25">
-                        <TrendingUp size={28} className="text-white" />
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-slate-500/25 p-3">
+                        <img src="/nods-logo.svg" alt="NODS" className="w-full" />
                     </div>
                     <h1 className="text-3xl font-extrabold text-slate-900 mb-1">
-                        Crexe<span className="text-blue-600">Web</span>
+                        Crexe <span className="text-blue-600">Nomas</span>
                     </h1>
-                    <p className="text-sm text-slate-400 font-medium">Dashboard de Gestión</p>
+                    <p className="text-sm text-slate-400 font-medium">Grupo Nods</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="mt-8 text-left space-y-5">

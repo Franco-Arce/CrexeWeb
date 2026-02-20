@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Funnel, Users, Trophy,
-    ChevronLeft, ChevronRight, LogOut, Sparkles, TrendingUp,
+    ChevronLeft, ChevronRight, LogOut, Sparkles,
 } from 'lucide-react';
 import AIPanel from '../components/AIPanel';
 
@@ -44,13 +44,13 @@ export default function DashboardLayout() {
                 transition={{ duration: 0.25 }}
             >
                 <div className="p-5 flex items-center gap-3 border-b border-slate-800">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <TrendingUp size={20} />
+                    <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center flex-shrink-0 p-1.5">
+                        <img src="/nods-logo.svg" alt="NODS" className="w-full" />
                     </div>
                     {!collapsed && (
                         <div className="overflow-hidden whitespace-nowrap">
-                            <h2 className="text-lg font-extrabold leading-tight">CrexeWeb</h2>
-                            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Dashboard IA</span>
+                            <h2 className="text-lg font-extrabold leading-tight">Crexe Nomas</h2>
+                            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Grupo Nods</span>
                         </div>
                     )}
                 </div>
@@ -99,8 +99,8 @@ export default function DashboardLayout() {
                     <button
                         onClick={() => setShowAI(!showAI)}
                         className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${showAI
-                                ? 'bg-blue-50 border-blue-200 text-blue-600'
-                                : 'bg-white border-slate-200 text-slate-400 hover:border-blue-200 hover:text-blue-500'
+                            ? 'bg-blue-50 border-blue-200 text-blue-600'
+                            : 'bg-white border-slate-200 text-slate-400 hover:border-blue-200 hover:text-blue-500'
                             }`}
                         title="Asistente IA"
                     >
