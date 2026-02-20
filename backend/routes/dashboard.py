@@ -1,18 +1,19 @@
 from fastapi import APIRouter, Depends, Query
 from typing import Optional
 from routes.auth import require_auth
-from mock_data import get_contacts, get_facts, get_bases, get_subcategorias
+from database import fetch_all, fetch_one
 from datetime import datetime
 from collections import Counter, defaultdict
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
-
-def _filter_contacts(base=None):
-    contacts = get_contacts()
+async def _get_base_filter(base: Optional[str]) -> tuple[str, list]:
+    where = "WHERE 1=1"
+    args = []
     if base:
-        contacts = [c for c in contacts if c["base"] == base]
-    return contacts
+        where += " AND base = $1"
+        args.append(base)
+    return where, args
 
 
 @router.get("/kpis")
@@ -20,22 +21,31 @@ async def get_kpis(
     base: Optional[str] = Query(None),
     _user: str = Depends(require_auth),
 ):
-    contacts = _filter_contacts(base)
-    total = len(contacts)
-    contactados = sum(1 for c in contacts if c["resultado_gestion"] == "Contactado")
-    no_contactados = sum(1 for c in contacts if c["resultado_gestion"] == "No Contactado")
-    efectivo = sum(1 for c in contacts if c["resultado_gestion"] == "Contacto Efectivo")
-    matriculados = sum(1 for c in contacts if c.get("_is_matriculado"))
-    toques_vals = [int(c["toques"]) for c in contacts if int(c["toques"]) > 0]
-    avg_toques = round(sum(toques_vals) / len(toques_vals), 1) if toques_vals else 0
-
+    where, args = await _get_base_filter(base)
+    
+    query = f"""
+        SELECT 
+            COUNT(*) as total_leads,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contactado') as contactados,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'No Contactado') as no_contactados,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contacto Efectivo') as contacto_efectivo,
+            COUNT(*) FILTER (WHERE ultima_subcategoria = '116') as matriculados,
+            AVG(NULLIF(CAST(toques AS INTEGER), 0)) as avg_toques
+        FROM dim_contactos
+        {where}
+    """
+    
+    row = await fetch_one(query, *args)
+    if not row:
+        return {"total_leads": 0, "contactados": 0, "no_contactados": 0, "contacto_efectivo": 0, "matriculados": 0, "avg_toques": 0}
+        
     return {
-        "total_leads": total,
-        "contactados": contactados,
-        "no_contactados": no_contactados,
-        "contacto_efectivo": efectivo,
-        "matriculados": matriculados,
-        "avg_toques": avg_toques,
+        "total_leads": row["total_leads"] or 0,
+        "contactados": row["contactados"] or 0,
+        "no_contactados": row["no_contactados"] or 0,
+        "contacto_efectivo": row["contacto_efectivo"] or 0,
+        "matriculados": row["matriculados"] or 0,
+        "avg_toques": round(float(row["avg_toques"]), 1) if row["avg_toques"] else 0,
     }
 
 
@@ -44,17 +54,25 @@ async def get_funnel(
     base: Optional[str] = Query(None),
     _user: str = Depends(require_auth),
 ):
-    contacts = _filter_contacts(base)
-    total = len(contacts)
-    contactados = sum(1 for c in contacts if c["resultado_gestion"] in ("Contactado", "Contacto Efectivo"))
-    efectivo = sum(1 for c in contacts if c["resultado_gestion"] == "Contacto Efectivo")
-    matriculados = sum(1 for c in contacts if c.get("_is_matriculado"))
-
+    where, args = await _get_base_filter(base)
+    
+    query = f"""
+        SELECT 
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE resultado_gestion IN ('Contactado', 'Contacto Efectivo')) as contactados,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contacto Efectivo') as efectivo,
+            COUNT(*) FILTER (WHERE ultima_subcategoria = '116') as matriculados
+        FROM dim_contactos
+        {where}
+    """
+    row = await fetch_one(query, *args)
+    row = row or {"total": 0, "contactados": 0, "efectivo": 0, "matriculados": 0}
+    
     return [
-        {"stage": "Leads", "value": total, "color": "#3b82f6"},
-        {"stage": "Contactados", "value": contactados, "color": "#60a5fa"},
-        {"stage": "Contacto Efectivo", "value": efectivo, "color": "#22c55e"},
-        {"stage": "Matriculados", "value": matriculados, "color": "#a855f7"},
+        {"stage": "Leads", "value": row["total"] or 0, "color": "#3b82f6"},
+        {"stage": "Contactados", "value": row["contactados"] or 0, "color": "#60a5fa"},
+        {"stage": "Contacto Efectivo", "value": row["efectivo"] or 0, "color": "#22c55e"},
+        {"stage": "Matriculados", "value": row["matriculados"] or 0, "color": "#a855f7"},
     ]
 
 
@@ -64,28 +82,29 @@ async def get_trends(
     base: Optional[str] = Query(None),
     _user: str = Depends(require_auth),
 ):
-    contacts = _filter_contacts(base)
-    buckets = defaultdict(lambda: {"leads": 0, "efectivos": 0, "matriculados": 0})
+    where, args = await _get_base_filter(base)
+    
+    if period == "day":
+        date_trunc = "DAY"
+    elif period == "week":
+        date_trunc = "WEEK"
+    else:
+        date_trunc = "MONTH"
 
-    for c in contacts:
-        if not c.get("fecha_a_utilizar"):
-            continue
-        dt = datetime.strptime(c["fecha_a_utilizar"], "%Y-%m-%d")
-        if period == "day":
-            key = dt.strftime("%Y-%m-%d")
-        elif period == "week":
-            key = (dt - __import__("datetime").timedelta(days=dt.weekday())).strftime("%Y-%m-%d")
-        else:
-            key = dt.strftime("%Y-%m-01")
-
-        buckets[key]["leads"] += 1
-        if c["resultado_gestion"] == "Contacto Efectivo":
-            buckets[key]["efectivos"] += 1
-        if c.get("_is_matriculado"):
-            buckets[key]["matriculados"] += 1
-
-    result = [{"period": k, **v} for k, v in sorted(buckets.items())]
-    return result
+    query = f"""
+        SELECT 
+            TO_CHAR(DATE_TRUNC('{date_trunc}', CAST(fecha_a_utilizar AS DATE)), 'YYYY-MM-DD') as period,
+            COUNT(*) as leads,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contacto Efectivo') as efectivos,
+            COUNT(*) FILTER (WHERE ultima_subcategoria = '116') as matriculados
+        FROM dim_contactos
+        {where} AND fecha_a_utilizar IS NOT NULL AND fecha_a_utilizar != ''
+        GROUP BY 1
+        ORDER BY 1 ASC
+    """
+    
+    rows = await fetch_all(query, *args)
+    return rows
 
 
 @router.get("/by-medio")
@@ -93,15 +112,20 @@ async def get_by_medio(
     base: Optional[str] = Query(None),
     _user: str = Depends(require_auth),
 ):
-    contacts = _filter_contacts(base)
-    medio_counts = Counter(c["medio"] for c in contacts)
-    efectivo_counts = Counter(c["medio"] for c in contacts if c["resultado_gestion"] == "Contacto Efectivo")
-
-    result = [
-        {"medio": m, "total": t, "efectivos": efectivo_counts.get(m, 0)}
-        for m, t in medio_counts.most_common()
-    ]
-    return result
+    where, args = await _get_base_filter(base)
+    
+    query = f"""
+        SELECT 
+            medio,
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contacto Efectivo') as efectivos
+        FROM dim_contactos
+        {where} AND medio IS NOT NULL
+        GROUP BY medio
+        ORDER BY total DESC
+    """
+    rows = await fetch_all(query, *args)
+    return rows
 
 
 @router.get("/by-programa")
@@ -110,16 +134,25 @@ async def get_by_programa(
     limit: int = Query(15),
     _user: str = Depends(require_auth),
 ):
-    contacts = _filter_contacts(base)
-    prog_contacts = [c for c in contacts if c.get("programa_interes")]
-    prog_counts = Counter(c["programa_interes"] for c in prog_contacts)
-    efect_counts = Counter(c["programa_interes"] for c in prog_contacts if c["resultado_gestion"] == "Contacto Efectivo")
+    where, args = await _get_base_filter(base)
+    if args:
+        where += " AND programa_interes IS NOT NULL AND programa_interes != ''"
+    else:
+        where = "WHERE programa_interes IS NOT NULL AND programa_interes != ''"
 
-    result = [
-        {"programa": p, "total": t, "efectivos": efect_counts.get(p, 0)}
-        for p, t in prog_counts.most_common(limit)
-    ]
-    return result
+    query = f"""
+        SELECT 
+            programa_interes as programa,
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contacto Efectivo') as efectivos
+        FROM dim_contactos
+        {where}
+        GROUP BY programa_interes
+        ORDER BY total DESC
+        LIMIT {limit}
+    """
+    rows = await fetch_all(query, *args)
+    return rows
 
 
 @router.get("/agents")
@@ -127,34 +160,31 @@ async def get_agents(
     base: Optional[str] = Query(None),
     _user: str = Depends(require_auth),
 ):
-    facts = get_facts()
+    # Agents are processed from fact_contactos
+    base_join = ""
+    where = "WHERE f.usuario IS NOT NULL AND f.usuario != ''"
+    args = []
+    
     if base:
-        base_ids = {str(b["iddatabase"]) for b in get_bases() if b["descripcion"] == base}
-        facts = [f for f in facts if f["iddatabase"] in base_ids]
+        base_join = "JOIN dim_bases b ON f.iddatabase = b.iddatabase"
+        where += " AND b.descripcion = $1"
+        args.append(base)
 
-    agent_data = defaultdict(lambda: {"total_gestiones": 0, "leads": set(), "ventas": 0})
-    for f in facts:
-        if not f.get("usuario"):
-            continue
-        agent_data[f["usuario"]]["total_gestiones"] += 1
-        agent_data[f["usuario"]]["leads"].add(f["idinterno"])
-        if f["idventa"] and f["idventa"] != "0":
-            agent_data[f["usuario"]]["ventas"] += 1
-
-    result = sorted(
-        [
-            {
-                "usuario": u,
-                "total_gestiones": d["total_gestiones"],
-                "leads_gestionados": len(d["leads"]),
-                "ventas": d["ventas"],
-            }
-            for u, d in agent_data.items()
-        ],
-        key=lambda x: x["total_gestiones"],
-        reverse=True,
-    )[:20]
-    return result
+    query = f"""
+        SELECT 
+            f.usuario,
+            COUNT(f.idinterno) as total_gestiones,
+            COUNT(DISTINCT f.idinterno) as leads_gestionados,
+            COUNT(*) FILTER (WHERE f.idventa IS NOT NULL AND f.idventa != '0') as ventas
+        FROM fact_contactos f
+        {base_join}
+        {where}
+        GROUP BY f.usuario
+        ORDER BY total_gestiones DESC
+        LIMIT 20
+    """
+    rows = await fetch_all(query, *args)
+    return rows
 
 
 @router.get("/leads")
@@ -167,45 +197,56 @@ async def get_leads(
     base: Optional[str] = Query(None),
     _user: str = Depends(require_auth),
 ):
-    contacts = _filter_contacts(base)
-
+    where, args = await _get_base_filter(base)
+    arg_idx = len(args) + 1
+    
     if search:
-        s = search.lower()
-        contacts = [
-            c for c in contacts
-            if s in (c.get("txtnombreapellid") or "").lower()
-            or s in (c.get("emlmail") or "").lower()
-            or s in (c.get("teltelefono") or "").lower()
-        ]
+        search_term = f"%{search.lower()}%"
+        where += f" AND (LOWER(txtnombreapellid) LIKE ${arg_idx} OR LOWER(emlmail) LIKE ${arg_idx} OR LOWER(teltelefono) LIKE ${arg_idx})"
+        args.append(search_term)
+        arg_idx += 1
+        
     if medio:
-        contacts = [c for c in contacts if c["medio"] == medio]
+        where += f" AND medio = ${arg_idx}"
+        args.append(medio)
+        arg_idx += 1
+        
     if resultado:
-        contacts = [c for c in contacts if c["resultado_gestion"] == resultado]
+        where += f" AND resultado_gestion = ${arg_idx}"
+        args.append(resultado)
+        arg_idx += 1
 
-    contacts.sort(key=lambda c: c.get("fecha_a_utilizar") or "", reverse=True)
-    total = len(contacts)
-    start = (page - 1) * per_page
-    page_data = contacts[start: start + per_page]
+    count_query = f"SELECT COUNT(*) as c FROM dim_contactos {where}"
+    count_row = await fetch_one(count_query, *args)
+    total = count_row["c"] if count_row else 0
 
-    rows = [
-        {
-            "idinterno": c["idinterno"],
-            "nombre": c["txtnombreapellid"],
-            "email": c["emlmail"],
-            "telefono": c["teltelefono"],
-            "medio": c["medio"],
-            "programa_interes": c["programa_interes"],
-            "resultado_gestion": c["resultado_gestion"],
-            "toques": c["toques"],
-            "fecha_lead": c["fecha_a_utilizar"],
-            "fecha_ult_gestion": c["fecha_ult_gestion"],
-            "base": c["base"],
-        }
-        for c in page_data
-    ]
+    offset = (page - 1) * per_page
+    query = f"""
+        SELECT 
+            idinterno,
+            txtnombreapellid as nombre,
+            emlmail as email,
+            teltelefono as telefono,
+            medio,
+            programa_interes,
+            resultado_gestion,
+            toques,
+            fecha_a_utilizar as fecha_lead,
+            fecha_ult_gestion,
+            base
+        FROM dim_contactos
+        {where}
+        ORDER BY fecha_a_utilizar DESC NULLS LAST
+        LIMIT {per_page} OFFSET {offset}
+    """
+    rows = await fetch_all(query, *args)
+    
     return {"data": rows, "total": total, "page": page, "per_page": per_page}
 
 
 @router.get("/bases")
 async def get_bases_list(_user: str = Depends(require_auth)):
-    return [{"iddatabase": b["iddatabase"], "descripcion": b["descripcion"]} for b in get_bases()]
+    query = "SELECT iddatabase, descripcion FROM dim_bases ORDER BY descripcion ASC"
+    rows = await fetch_all(query)
+    return rows
+

@@ -31,7 +31,7 @@ app.include_router(ai_router)
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "app": "UniandesWeb API", "mode": "mock_data"}
+    return {"status": "ok", "app": "UniandesWeb API", "mode": "database"}
 
 
 if __name__ == "__main__":

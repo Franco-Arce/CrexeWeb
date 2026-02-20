@@ -1,11 +1,12 @@
 import os
 import json
 import httpx
+import asyncio
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import Optional
 from routes.auth import require_auth
-from mock_data import get_contacts, get_facts
+from database import fetch_all, fetch_one
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 
@@ -15,55 +16,89 @@ MODEL = "llama-3.3-70b-versatile"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
-def _groq_chat(messages: list, temperature: float = 0.3, max_tokens: int = 800) -> str:
-    """Call Groq API directly via HTTP to avoid SDK version issues."""
+async def _groq_chat_async(messages: list, temperature: float = 0.3, max_tokens: int = 800) -> str:
+    """Call Groq API directly via HTTP asynchronously."""
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise Exception("GROQ_API_KEY no configurada en el servidor")
 
-    resp = httpx.post(
-        GROQ_URL,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": MODEL,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-        },
-        timeout=30.0,
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            GROQ_URL,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": MODEL,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            },
+            timeout=30.0,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return data["choices"][0]["message"]["content"]
+
+
+async def _get_data_context() -> str:
+    """Build a comprehensive summary of current data for AI context using DB queries."""
+    
+    q_kpis = """
+        SELECT 
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contactado') as contactados,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'No Contactado') as no_contactados,
+            COUNT(*) FILTER (WHERE resultado_gestion = 'Contacto Efectivo') as efectivo,
+            COUNT(*) FILTER (WHERE ultima_subcategoria = '116') as matriculados
+        FROM dim_contactos
+    """
+    
+    q_medios = """
+        SELECT medio, COUNT(*) as total 
+        FROM dim_contactos 
+        WHERE medio IS NOT NULL 
+        GROUP BY medio ORDER BY total DESC LIMIT 10
+    """
+    
+    q_programas = """
+        SELECT programa_interes as programa, COUNT(*) as total 
+        FROM dim_contactos 
+        WHERE programa_interes IS NOT NULL AND programa_interes != '' 
+        GROUP BY programa_interes ORDER BY total DESC LIMIT 10
+    """
+    
+    q_agentes = """
+        SELECT usuario as agente, COUNT(*) as gestiones 
+        FROM fact_contactos 
+        WHERE usuario IS NOT NULL AND usuario != '' 
+        GROUP BY usuario ORDER BY gestiones DESC LIMIT 10
+    """
+    
+    q_weekly = """
+        SELECT TO_CHAR(DATE_TRUNC('WEEK', CAST(fecha_a_utilizar AS DATE)), 'YYYY-MM-DD') as semana, COUNT(*) as leads 
+        FROM dim_contactos 
+        WHERE fecha_a_utilizar IS NOT NULL AND fecha_a_utilizar != '' 
+        GROUP BY 1 ORDER BY 1 DESC LIMIT 8
+    """
+
+    res_kpis, res_medios, res_programas, res_agentes, res_weekly = await asyncio.gather(
+        fetch_one(q_kpis),
+        fetch_all(q_medios),
+        fetch_all(q_programas),
+        fetch_all(q_agentes),
+        fetch_all(q_weekly)
     )
-    resp.raise_for_status()
-    data = resp.json()
-    return data["choices"][0]["message"]["content"]
 
+    if not res_kpis:
+        res_kpis = {"total": 0, "contactados": 0, "no_contactados": 0, "efectivo": 0, "matriculados": 0}
 
-def _get_data_context() -> str:
-    """Build a comprehensive summary of current data for AI context."""
-    contacts = get_contacts()
-    total = len(contacts)
-    contactados = sum(1 for c in contacts if c["resultado_gestion"] == "Contactado")
-    no_contactados = sum(1 for c in contacts if c["resultado_gestion"] == "No Contactado")
-    efectivo = sum(1 for c in contacts if c["resultado_gestion"] == "Contacto Efectivo")
-    matriculados = sum(1 for c in contacts if c.get("_is_matriculado"))
+    total = res_kpis["total"] or 0
+    contactados = res_kpis["contactados"] or 0
+    efectivo = res_kpis["efectivo"] or 0
+    matriculados = res_kpis["matriculados"] or 0
 
-    medio_counts = Counter(c["medio"] for c in contacts).most_common(10)
-    prog_counts = Counter(c["programa_interes"] for c in contacts if c.get("programa_interes")).most_common(10)
-
-    # Agent performance
-    agent_counts = Counter(c.get("usuario", "Sin asignar") for c in contacts).most_common(10)
-
-    weekly = defaultdict(int)
-    for c in contacts:
-        if c.get("fecha_a_utilizar"):
-            dt = datetime.strptime(c["fecha_a_utilizar"], "%Y-%m-%d")
-            week_start = (dt - timedelta(days=dt.weekday())).strftime("%Y-%m-%d")
-            weekly[week_start] += 1
-    recent_weeks = sorted(weekly.items(), reverse=True)[:8]
-
-    # Funnel with conversion rates
     funnel = [
         {"etapa": "Leads", "valor": total},
         {"etapa": "Contactados", "valor": contactados},
@@ -75,7 +110,7 @@ def _get_data_context() -> str:
         "kpis": {
             "total_leads": total,
             "contactados": contactados,
-            "no_contactados": no_contactados,
+            "no_contactados": res_kpis["no_contactados"] or 0,
             "contacto_efectivo": efectivo,
             "matriculados": matriculados,
             "tasa_contacto": f"{(contactados / total * 100):.1f}%" if total else "0%",
@@ -83,10 +118,10 @@ def _get_data_context() -> str:
             "tasa_matriculacion": f"{(matriculados / total * 100):.1f}%" if total else "0%",
         },
         "embudo_conversion": funnel,
-        "top_medios": [{"medio": m, "total": t} for m, t in medio_counts],
-        "tendencia_semanal": [{"semana": s, "leads": l} for s, l in recent_weeks],
-        "top_programas": [{"programa": p, "total": t} for p, t in prog_counts],
-        "top_agentes": [{"agente": a, "gestiones": g} for a, g in agent_counts],
+        "top_medios": res_medios,
+        "tendencia_semanal": res_weekly,
+        "top_programas": res_programas,
+        "top_agentes": res_agentes,
     }, default=str, ensure_ascii=False)
 
 
@@ -98,7 +133,7 @@ class ChatRequest(BaseModel):
 @router.post("/chat")
 async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
     try:
-        context = _get_data_context()
+        context = await _get_data_context()
 
         messages = [
             {
@@ -117,7 +152,7 @@ async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
 
         messages.append({"role": "user", "content": body.message})
 
-        content = _groq_chat(messages, temperature=0.3, max_tokens=800)
+        content = await _groq_chat_async(messages, temperature=0.3, max_tokens=800)
         return {"response": content}
     except Exception as e:
         print(f"[AI Chat Error] {e}")
@@ -127,7 +162,7 @@ async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
 @router.get("/insights")
 async def ai_insights(_user: str = Depends(require_auth)):
     try:
-        context = _get_data_context()
+        context = await _get_data_context()
 
         messages = [
             {
@@ -142,7 +177,7 @@ async def ai_insights(_user: str = Depends(require_auth)):
             {"role": "user", "content": f"Datos actuales:\n{context}\n\nGenera 4 insights:"},
         ]
 
-        raw = _groq_chat(messages, temperature=0.4, max_tokens=600).strip()
+        raw = (await _groq_chat_async(messages, temperature=0.4, max_tokens=600)).strip()
         try:
             if "```" in raw:
                 raw = raw.split("```")[1]
@@ -161,7 +196,7 @@ async def ai_insights(_user: str = Depends(require_auth)):
 @router.get("/predictions")
 async def ai_predictions(_user: str = Depends(require_auth)):
     try:
-        context = _get_data_context()
+        context = await _get_data_context()
 
         messages = [
             {
@@ -176,7 +211,7 @@ async def ai_predictions(_user: str = Depends(require_auth)):
             {"role": "user", "content": f"Tendencia histórica:\n{context}\n\nPredice las próximas 4 semanas:"},
         ]
 
-        raw = _groq_chat(messages, temperature=0.3, max_tokens=400).strip()
+        raw = (await _groq_chat_async(messages, temperature=0.3, max_tokens=400)).strip()
         try:
             if "```" in raw:
                 raw = raw.split("```")[1]
@@ -190,3 +225,4 @@ async def ai_predictions(_user: str = Depends(require_auth)):
     except Exception as e:
         print(f"[AI Predictions Error] {e}")
         return {"predictions": []}
+
