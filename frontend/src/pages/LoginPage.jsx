@@ -41,7 +41,7 @@ export default function LoginPage() {
                         <img src="/nods-logo.svg" alt="NODS" className="w-full" />
                     </div>
                     <h1 className="text-3xl font-extrabold text-slate-900 mb-1">
-                        Crexe <span className="text-blue-600">Nomas</span>
+                        Crexe
                     </h1>
                     <p className="text-sm text-slate-400 font-medium">Grupo Nods</p>
                 </div>
@@ -84,7 +84,7 @@ export default function LoginPage() {
                         {loading ? 'Iniciando...' : 'Iniciar Sesión'}
                     </motion.button>
                 </form>
-            </motion.div>
-        </div>
+            </motion.div >
+        </div >
     );
 }
