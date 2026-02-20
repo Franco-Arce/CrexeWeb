@@ -82,9 +82,9 @@ async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
 
 
 @router.post("/insights")
-async def ai_insights(body: ContextRequest, _user: str = Depends(require_auth)):
+async def ai_insights(body: Optional[ContextRequest] = None, _user: str = Depends(require_auth)):
     try:
-        context = json.dumps(body.context_data, default=str, ensure_ascii=False) if body.context_data else "{}"
+        context = json.dumps(body.context_data, default=str, ensure_ascii=False) if body and body.context_data else "{}"
 
         messages = [
             {
@@ -116,9 +116,9 @@ async def ai_insights(body: ContextRequest, _user: str = Depends(require_auth)):
 
 
 @router.post("/predictions")
-async def ai_predictions(body: ContextRequest, _user: str = Depends(require_auth)):
+async def ai_predictions(body: Optional[ContextRequest] = None, _user: str = Depends(require_auth)):
     try:
-        context = json.dumps(body.context_data, default=str, ensure_ascii=False) if body.context_data else "{}"
+        context = json.dumps(body.context_data, default=str, ensure_ascii=False) if body and body.context_data else "{}"
 
         messages = [
             {
