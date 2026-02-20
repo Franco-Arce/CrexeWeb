@@ -104,7 +104,7 @@ async def ai_chat(body: ChatRequest, _user: str = Depends(require_auth)):
             {
                 "role": "system",
                 "content": (
-                    "Eres un analista de datos experto del contact center Crexe. "
+                    "Eres un analista de datos experto del contact center Uniandes. "
                     "Respondes preguntas sobre leads, gestión y conversión usando los datos reales. "
                     "Sé conciso, usa números y porcentajes. Responde en español.\n\n"
                     f"DATOS ACTUALES:\n{context}"
@@ -133,7 +133,7 @@ async def ai_insights(_user: str = Depends(require_auth)):
             {
                 "role": "system",
                 "content": (
-                    "Eres un analista de datos del contact center Crexe. "
+                    "Eres un analista de datos del contact center Uniandes. "
                     "Genera exactamente 4 insights breves y accionables basados en los datos. "
                     "Formato JSON: [{\"icon\": \"trending_up|trending_down|alert|star\", \"title\": \"...\", \"description\": \"...\"}]. "
                     "Responde SOLO el JSON, sin texto adicional. Responde en español."
@@ -167,7 +167,7 @@ async def ai_predictions(_user: str = Depends(require_auth)):
             {
                 "role": "system",
                 "content": (
-                    "Eres un analista predictivo del contact center Crexe. "
+                    "Eres un analista predictivo del contact center Uniandes. "
                     "Basándote en las tendencias de las últimas semanas, predice los próximos 4 períodos. "
                     "Formato JSON: [{\"period\": \"Semana X\", \"predicted_leads\": N, \"predicted_efectivos\": N, \"confidence\": 0.0-1.0}]. "
                     "Responde SOLO el JSON, sin texto adicional."

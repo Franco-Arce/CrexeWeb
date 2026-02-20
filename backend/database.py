@@ -12,7 +12,7 @@ async def get_pool():
         _pool = await asyncpg.create_pool(
             host=os.getenv("DB_HOST", "77.37.68.210"),
             port=int(os.getenv("DB_PORT", "5432")),
-            database=os.getenv("DB_NAME", "crexe"),
+            database=os.getenv("DB_NAME", "uniandes"),
             user=os.getenv("DB_USER", "nicoyapur"),
             password=os.getenv("DB_PASSWORD", "Yapur1234$"),
             min_size=2,

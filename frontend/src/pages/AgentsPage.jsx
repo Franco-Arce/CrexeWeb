@@ -3,11 +3,18 @@ import { motion } from 'framer-motion';
 import { Trophy, Users, Target, TrendingUp, Medal, ArrowUpRight } from 'lucide-react';
 import api from '../api';
 
-const MEDAL = ['🥇', '🥈', '🥉'];
+const MEDAL = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
 const MEDAL_BG = [
     'bg-amber-50 border-amber-200',
     'bg-slate-50 border-slate-200',
     'bg-orange-50 border-orange-200',
+    'bg-blue-50 border-blue-200',
+    'bg-indigo-50 border-indigo-200',
+    'bg-purple-50 border-purple-200',
+    'bg-pink-50 border-pink-200',
+    'bg-rose-50 border-rose-200',
+    'bg-red-50 border-red-200',
+    'bg-teal-50 border-teal-200'
 ];
 
 export default function AgentsPage() {
@@ -32,9 +39,9 @@ export default function AgentsPage() {
                 </div>
             </div>
 
-            {/* Top 3 Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {agents.slice(0, 3).map((agent, i) => (
+            {/* Top 10 Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {agents.slice(0, 10).map((agent, i) => (
                     <motion.div
                         key={agent.usuario}
                         initial={{ opacity: 0, y: 20 }}
@@ -92,7 +99,7 @@ export default function AgentsPage() {
                                         className="hover:bg-slate-50/50 transition-colors"
                                     >
                                         <td className="px-6 py-4">
-                                            {i < 3 ? (
+                                            {i < 10 ? (
                                                 <span className="text-lg">{MEDAL[i]}</span>
                                             ) : (
                                                 <span className="text-sm text-slate-400 font-bold">{i + 1}</span>
@@ -107,8 +114,8 @@ export default function AgentsPage() {
                                         <td className="px-6 py-4 text-sm text-slate-400">{a.no_contactados}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${parseFloat(conv) > 30 ? 'bg-emerald-50 text-emerald-600' :
-                                                    parseFloat(conv) > 15 ? 'bg-blue-50 text-blue-600' :
-                                                        'bg-amber-50 text-amber-600'
+                                                parseFloat(conv) > 15 ? 'bg-blue-50 text-blue-600' :
+                                                    'bg-amber-50 text-amber-600'
                                                 }`}>
                                                 {conv}%
                                             </span>

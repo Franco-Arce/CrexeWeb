@@ -1,7 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function getToken() {
-  return localStorage.getItem('crexe_token');
+  return localStorage.getItem('uniandes_token');
 }
 
 function authHeaders() {
@@ -19,7 +19,7 @@ async function request(path, options = {}) {
     },
   });
   if (res.status === 401) {
-    localStorage.removeItem('crexe_token');
+    localStorage.removeItem('uniandes_token');
     window.location.href = '/';
     throw new Error('Unauthorized');
   }

@@ -17,7 +17,7 @@ export default function LoginPage() {
         setError('');
         try {
             const res = await api.login(username, password);
-            localStorage.setItem('crexe_token', res.token);
+            localStorage.setItem('uniandes_token', res.token);
             navigate('/dashboard');
         } catch {
             setError('Credenciales inválidas');
@@ -41,7 +41,7 @@ export default function LoginPage() {
                         <img src="/nods-logo.svg" alt="NODS" className="w-full" />
                     </div>
                     <h1 className="text-3xl font-extrabold text-slate-900 mb-1">
-                        Crexe
+                        Uniandes
                     </h1>
                     <p className="text-sm text-slate-400 font-medium">Grupo Nods</p>
                 </div>

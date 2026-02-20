@@ -7,7 +7,7 @@ import LeadsPage from './pages/LeadsPage';
 import AgentsPage from './pages/AgentsPage';
 
 function ProtectedRoute({ children }) {
-    const token = localStorage.getItem('crexe_token');
+    const token = localStorage.getItem('uniandes_token');
     return token ? children : <Navigate to="/" replace />;
 }
 

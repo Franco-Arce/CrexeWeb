@@ -11,8 +11,8 @@ from routes.ai import router as ai_router
 
 
 app = FastAPI(
-    title="CrexeWeb API",
-    description="Dashboard API for Crexe Contact Center",
+    title="UniandesWeb API",
+    description="Dashboard API for Uniandes Contact Center",
     version="1.0.0",
 )
 
@@ -31,7 +31,7 @@ app.include_router(ai_router)
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "app": "CrexeWeb API", "mode": "mock_data"}
+    return {"status": "ok", "app": "UniandesWeb API", "mode": "mock_data"}
 
 
 if __name__ == "__main__":

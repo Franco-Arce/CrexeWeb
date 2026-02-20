@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 
 # ── Dimension: Bases ──
 BASES = [
-    {"iddatabase": 188, "descripcion": "Crexe - Posgrados", "fecha_alta": "2024-01-15"},
-    {"iddatabase": 204, "descripcion": "Crexe - Licenciaturas", "fecha_alta": "2024-03-01"},
-    {"iddatabase": 207, "descripcion": "Crexe - Diplomados", "fecha_alta": "2024-05-10"},
-    {"iddatabase": 208, "descripcion": "Crexe - Maestrías", "fecha_alta": "2024-06-20"},
-    {"iddatabase": 209, "descripcion": "Crexe - Educación Continua", "fecha_alta": "2024-08-01"},
+    {"iddatabase": 188, "descripcion": "Uniandes - Posgrados", "fecha_alta": "2024-01-15"},
+    {"iddatabase": 204, "descripcion": "Uniandes - Licenciaturas", "fecha_alta": "2024-03-01"},
+    {"iddatabase": 207, "descripcion": "Uniandes - Diplomados", "fecha_alta": "2024-05-10"},
+    {"iddatabase": 208, "descripcion": "Uniandes - Maestrías", "fecha_alta": "2024-06-20"},
+    {"iddatabase": 209, "descripcion": "Uniandes - Educación Continua", "fecha_alta": "2024-08-01"},
 ]
 
 MEDIOS = ["Google", "Facebook", "Email", "whatsapp", "Otras Redes Sociales", "Otros"]

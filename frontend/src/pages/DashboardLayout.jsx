@@ -28,7 +28,7 @@ export default function DashboardLayout() {
     const location = useLocation();
 
     const logout = () => {
-        localStorage.removeItem('crexe_token');
+        localStorage.removeItem('uniandes_token');
         navigate('/');
     };
 
@@ -49,7 +49,7 @@ export default function DashboardLayout() {
                     </div>
                     {!collapsed && (
                         <div className="overflow-hidden whitespace-nowrap">
-                            <h2 className="text-lg font-extrabold leading-tight">Crexe</h2>
+                            <h2 className="text-lg font-extrabold leading-tight">Uniandes</h2>
                             <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Grupo Nods</span>
                         </div>
                     )}
