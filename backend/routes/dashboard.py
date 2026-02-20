@@ -172,15 +172,18 @@ async def get_agents(
 
     query = f"""
         SELECT 
-            f.usuario,
-            COUNT(f.idinterno) as total_gestiones,
-            COUNT(DISTINCT f.idinterno) as leads_gestionados,
-            COUNT(*) FILTER (WHERE f.idventa IS NOT NULL AND f.idventa != '0') as ventas
+            f.usuario as usuario,
+            COUNT(DISTINCT f.idinterno) as total_leads,
+            COUNT(DISTINCT f.idinterno) FILTER (WHERE c.resultado_gestion IN ('Contactado', 'Contacto Efectivo')) as contactados,
+            COUNT(DISTINCT f.idinterno) FILTER (WHERE c.resultado_gestion = 'Contacto Efectivo') as contacto_efectivo,
+            COUNT(DISTINCT f.idinterno) FILTER (WHERE c.resultado_gestion = 'No Contactado') as no_contactados,
+            COUNT(DISTINCT f.idinterno) FILTER (WHERE c.ultima_subcategoria = '116') as matriculados
         FROM fact_contactos f
+        JOIN dim_contactos c ON f.idinterno = c.idinterno
         {base_join}
         {where}
         GROUP BY f.usuario
-        ORDER BY total_gestiones DESC
+        ORDER BY total_leads DESC
         LIMIT 20
     """
     rows = await fetch_all(query, *args)
