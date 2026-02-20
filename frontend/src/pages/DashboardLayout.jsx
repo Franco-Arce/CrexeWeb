@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Funnel, Users, Trophy,
-    ChevronLeft, ChevronRight, LogOut, Sparkles,
+    ChevronLeft, ChevronRight, LogOut, Sparkles, RefreshCw
 } from 'lucide-react';
 import AIPanel from '../components/AIPanel';
 
@@ -95,7 +95,24 @@ export default function DashboardLayout() {
             {/* ── Main ── */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                 <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
-                    <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+
+                        <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-slate-200">
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-500 bg-slate-50 hover:bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 rounded-lg transition-all shadow-sm"
+                                title="Actualizar datos desde la base"
+                            >
+                                <RefreshCw size={12} className="opacity-70" />
+                                Actualizar Base
+                            </button>
+                            <span className="text-[10px] font-medium text-slate-400">
+                                Última act.: {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                        </div>
+                    </div>
+
                     <button
                         onClick={() => setShowAI(!showAI)}
                         className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${showAI

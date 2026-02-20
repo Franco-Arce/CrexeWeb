@@ -30,6 +30,8 @@ async function request(path, options = {}) {
   return res.json();
 }
 
+let dashboardContext = {};
+
 export const api = {
   // Auth
   login: (username, password) =>
@@ -40,14 +42,36 @@ export const api = {
   me: () => request('/api/auth/me'),
 
   // Dashboard
-  kpis: (base) => request(`/api/dashboard/kpis${base ? `?base=${base}` : ''}`),
-  funnel: (base) => request(`/api/dashboard/funnel${base ? `?base=${base}` : ''}`),
-  trends: (period = 'week', base) =>
-    request(`/api/dashboard/trends?period=${period}${base ? `&base=${base}` : ''}`),
-  byMedio: (base) => request(`/api/dashboard/by-medio${base ? `?base=${base}` : ''}`),
-  byPrograma: (base, limit = 15) =>
-    request(`/api/dashboard/by-programa?limit=${limit}${base ? `&base=${base}` : ''}`),
-  agents: (base) => request(`/api/dashboard/agents${base ? `?base=${base}` : ''}`),
+  kpis: async (base) => {
+    const res = await request(`/api/dashboard/kpis${base ? `?base=${base}` : ''}`);
+    dashboardContext.kpis = res;
+    return res;
+  },
+  funnel: async (base) => {
+    const res = await request(`/api/dashboard/funnel${base ? `?base=${base}` : ''}`);
+    dashboardContext.funnel = res;
+    return res;
+  },
+  trends: async (period = 'week', base) => {
+    const res = await request(`/api/dashboard/trends?period=${period}${base ? `&base=${base}` : ''}`);
+    dashboardContext.trends = res;
+    return res;
+  },
+  byMedio: async (base) => {
+    const res = await request(`/api/dashboard/by-medio${base ? `?base=${base}` : ''}`);
+    dashboardContext.byMedio = res;
+    return res;
+  },
+  byPrograma: async (base, limit = 15) => {
+    const res = await request(`/api/dashboard/by-programa?limit=${limit}${base ? `&base=${base}` : ''}`);
+    dashboardContext.byPrograma = res;
+    return res;
+  },
+  agents: async (base) => {
+    const res = await request(`/api/dashboard/agents${base ? `?base=${base}` : ''}`);
+    dashboardContext.agents = res;
+    return res;
+  },
   leads: (params = {}) => {
     const q = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => { if (v) q.set(k, v); });
@@ -59,10 +83,16 @@ export const api = {
   aiChat: (message, history = []) =>
     request('/api/ai/chat', {
       method: 'POST',
-      body: JSON.stringify({ message, history }),
+      body: JSON.stringify({ message, history, context_data: dashboardContext }),
     }),
-  aiInsights: () => request('/api/ai/insights'),
-  aiPredictions: () => request('/api/ai/predictions'),
+  aiInsights: () => request('/api/ai/insights', {
+    method: 'POST',
+    body: JSON.stringify({ context_data: dashboardContext }),
+  }),
+  aiPredictions: () => request('/api/ai/predictions', {
+    method: 'POST',
+    body: JSON.stringify({ context_data: dashboardContext }),
+  }),
 };
 
 export default api;
