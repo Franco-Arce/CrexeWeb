@@ -100,7 +100,7 @@ export default function DashboardLayout() {
 
                         <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-slate-200">
                             <button
-                                onClick={fetchData}
+                                onClick={() => window.location.reload()}
                                 className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-nods-text-muted bg-nods-bg hover:bg-nods-card border border-nods-border hover:border-nods-accent hover:text-white rounded-lg transition-all shadow-sm"
                                 title="Actualizar datos desde la base"
                             >
@@ -114,8 +114,8 @@ export default function DashboardLayout() {
                     </div>
 
                     <button
-                        onClick={() => setIsOpen(!isOpen)} // Changed from setShowAI to setIsOpen
-                        className={`p-2 rounded-xl border transition-all ${isOpen // Changed from showAI to isOpen
+                        onClick={() => setShowAI(!showAI)}
+                        className={`p-2 rounded-xl border transition-all ${showAI
                             ? 'bg-nods-accent border-nods-accent text-white shadow-lg shadow-nods-accent/20'
                             : 'bg-nods-card border-nods-border text-nods-text-muted hover:border-nods-accent/50 hover:text-white'
                             }`}
