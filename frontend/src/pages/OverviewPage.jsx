@@ -237,7 +237,7 @@ export default function OverviewPage() {
                 {/* Funnel */}
                 <Reveal className="lg:col-span-4" delay={0.15}>
                     <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm flex flex-col h-full">
-                        <h3 className="font-bold text-white mb-6">Embudo de Ventas</h3>
+                        <h3 className="font-bold text-nods-text-primary mb-6">Embudo de Ventas</h3>
                         <div className="flex-1 space-y-4">
                             {funnel.map((stage, i) => {
                                 const pct = ((stage.value / maxFunnel) * 100);
@@ -284,7 +284,7 @@ export default function OverviewPage() {
                 {/* Pie */}
                 <Reveal>
                     <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
+                        <h3 className="font-bold text-nods-text-primary mb-6 flex items-center gap-2">
                             <PieIcon size={16} className="text-blue-500" /> Distribución por Medio
                         </h3>
                         <div className="h-[250px]">
@@ -320,7 +320,7 @@ export default function OverviewPage() {
                 {/* Programs */}
                 <Reveal delay={0.1}>
                     <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
+                        <h3 className="font-bold text-nods-text-primary mb-6 flex items-center gap-2">
                             <Target size={16} className="text-rose-500" /> Top Programas
                         </h3>
                         <div className="space-y-4">
@@ -350,7 +350,7 @@ export default function OverviewPage() {
                 {/* Agents */}
                 <Reveal delay={0.2}>
                     <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
+                        <h3 className="font-bold text-nods-text-primary mb-6 flex items-center gap-2">
                             <Trophy size={16} className="text-amber-500" /> Ranking Asesores
                         </h3>
                         <div className="space-y-3">
