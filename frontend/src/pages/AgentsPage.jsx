@@ -32,10 +32,10 @@ export default function AgentsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
                         <Trophy size={20} className="text-amber-500" /> Ranking de Asesores
                     </h2>
-                    <p className="text-sm text-slate-400 mt-0.5">{agents.length} asesores activos</p>
+                    <p className="text-sm text-nods-text-muted mt-0.5">{agents.length} asesores activos</p>
                 </div>
             </div>
 
@@ -73,10 +73,10 @@ export default function AgentsPage() {
             </div>
 
             {/* Full Table */}
-            <div className="bg-nods-card border border-nods-border p-6 rounded-3xl shadow-sm overflow-hidden">
+            <div className="bg-nods-card rounded-2xl border border-nods-border shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-wider font-bold">
+                        <thead className="bg-nods-bg text-nods-text-muted text-[10px] uppercase tracking-wider font-bold">
                             <tr>
                                 <th className="px-6 py-4">#</th>
                                 <th className="px-6 py-4">Asesor</th>
@@ -106,9 +106,9 @@ export default function AgentsPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="text-sm font-bold text-slate-900">{a.usuario}</p>
+                                            <p className="text-sm font-bold text-white">{a.usuario}</p>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-slate-700">{a.total_leads}</td>
+                                        <td className="px-6 py-4 text-sm font-semibold text-nods-text-silver">{a.total_leads}</td>
                                         <td className="px-6 py-4 text-sm text-blue-600 font-semibold">{a.contactados}</td>
                                         <td className="px-6 py-4 text-sm text-emerald-600 font-semibold">{a.contacto_efectivo}</td>
                                         <td className="px-6 py-4 text-sm text-slate-400">{a.no_contactados}</td>

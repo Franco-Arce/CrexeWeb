@@ -96,7 +96,7 @@ export default function DashboardLayout() {
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                 <header className="h-16 border-b border-nods-border/50 bg-nods-card/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
                     <div className="flex items-center gap-4">
-                        <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+                        <h2 className="text-lg font-bold text-white">{title}</h2>
 
                         <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-slate-200">
                             <button

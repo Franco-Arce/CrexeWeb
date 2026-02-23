@@ -46,10 +46,10 @@ export default function FunnelPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
                         <Funnel size={20} className="text-blue-500" /> Embudo de Conversión
                     </h2>
-                    <p className="text-sm text-slate-400 mt-0.5">Flujo completo de leads hasta matriculación</p>
+                    <p className="text-sm text-nods-text-muted mt-0.5">Flujo completo de leads hasta matriculación</p>
                 </div>
                 <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-5 py-3 rounded-2xl shadow-lg shadow-emerald-500/20">
                     <span className="text-[10px] font-semibold text-emerald-100 uppercase tracking-wider">Conversión Total</span>
@@ -101,7 +101,7 @@ export default function FunnelPage() {
 
             {/* Bar chart */}
             <div className="bg-nods-card border border-nods-border p-6 rounded-2xl shadow-sm">
-                <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <h3 className="font-bold text-white mb-6 flex items-center gap-2">
                     <Target size={16} className="text-blue-500" /> Comparativa por Etapa
                 </h3>
                 <div className="h-[300px]">

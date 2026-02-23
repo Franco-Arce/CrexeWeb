@@ -170,10 +170,10 @@ export default function OverviewPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Main Trend */}
                 <Reveal className="lg:col-span-8">
-                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                <h3 className="font-bold text-white flex items-center gap-2">
                                     <BarChart3 size={16} className="text-blue-500" /> Tendencias de Conversión
                                 </h3>
                                 <p className="text-xs text-slate-400 mt-0.5">Actividad por período</p>
@@ -236,8 +236,8 @@ export default function OverviewPage() {
 
                 {/* Funnel */}
                 <Reveal className="lg:col-span-4" delay={0.15}>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col h-full">
-                        <h3 className="font-bold text-slate-800 mb-6">Embudo de Ventas</h3>
+                    <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm flex flex-col h-full">
+                        <h3 className="font-bold text-white mb-6">Embudo de Ventas</h3>
                         <div className="flex-1 space-y-4">
                             {funnel.map((stage, i) => {
                                 const pct = ((stage.value / maxFunnel) * 100);
@@ -283,8 +283,8 @@ export default function OverviewPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Pie */}
                 <Reveal>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
+                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
                             <PieIcon size={16} className="text-blue-500" /> Distribución por Medio
                         </h3>
                         <div className="h-[250px]">
@@ -319,8 +319,8 @@ export default function OverviewPage() {
 
                 {/* Programs */}
                 <Reveal delay={0.1}>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
+                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
                             <Target size={16} className="text-rose-500" /> Top Programas
                         </h3>
                         <div className="space-y-4">
@@ -349,8 +349,8 @@ export default function OverviewPage() {
 
                 {/* Agents */}
                 <Reveal delay={0.2}>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
+                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
                             <Trophy size={16} className="text-amber-500" /> Ranking Asesores
                         </h3>
                         <div className="space-y-3">

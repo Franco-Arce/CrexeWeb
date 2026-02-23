@@ -88,7 +88,7 @@ export default function LeadsPage() {
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Users size={16} className="text-blue-500" />
-                        <span className="font-bold text-slate-800 text-sm">Listado de Leads</span>
+                        <span className="font-bold text-white text-sm">Listado de Leads</span>
                     </div>
                     <span className="text-xs text-slate-400 font-semibold">{data.total?.toLocaleString()} registros</span>
                 </div>
@@ -98,7 +98,7 @@ export default function LeadsPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-wider font-bold">
+                            <thead className="bg-nods-bg text-nods-text-muted text-[10px] uppercase tracking-wider font-bold">
                                 <tr>
                                     <th className="px-6 py-4">Nombre</th>
                                     <th className="px-6 py-4">Email</th>
@@ -120,11 +120,11 @@ export default function LeadsPage() {
                                         className="hover:bg-slate-50/50 transition-colors"
                                     >
                                         <td className="px-6 py-4">
-                                            <p className="text-sm font-bold text-slate-900">{lead.nombre || '—'}</p>
-                                            <p className="text-[11px] text-slate-400">ID: #{lead.idinterno || i}</p>
+                                            <p className="text-sm font-bold text-white">{lead.nombre || '—'}</p>
+                                            <p className="text-[11px] text-nods-text-muted">ID: #{lead.idinterno || i}</p>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-slate-500">{lead.email || '—'}</td>
-                                        <td className="px-6 py-4 text-sm text-slate-500">{lead.telefono || '—'}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-text-silver">{lead.email || '—'}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-text-silver">{lead.telefono || '—'}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${MEDIO_STYLES[lead.medio] || 'bg-slate-100 text-slate-500'
                                                 }`}>
