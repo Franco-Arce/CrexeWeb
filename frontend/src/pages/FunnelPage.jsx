@@ -16,11 +16,9 @@ const STAGE_GRADIENTS = [
 const BAR_COLORS = ['#3b82f6', '#6366f1', '#10b981', '#f59e0b', '#8b5cf6'];
 
 const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload?.length) return null;
-    const d = payload[0];
     return (
-        <div className="bg-slate-900 text-white rounded-xl px-4 py-3 shadow-2xl border border-slate-700">
-            <p className="text-xs text-slate-400 mb-1">{d.payload?.stage}</p>
+        <div className="bg-white text-nods-text-primary rounded-xl px-4 py-3 shadow-2xl border border-nods-border min-w-[140px]">
+            <p className="text-[10px] text-nods-text-muted mb-1 font-bold uppercase tracking-wider border-b border-nods-border pb-1">{d.payload?.stage}</p>
             <p className="text-lg font-extrabold">{d.value?.toLocaleString()}</p>
         </div>
     );
@@ -46,10 +44,10 @@ export default function FunnelPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Funnel size={20} className="text-blue-500" /> Embudo de Conversión
+                    <h2 className="text-xl font-bold text-nods-text-primary flex items-center gap-2">
+                        <Funnel size={20} className="text-nods-accent" /> Embudo de Conversión
                     </h2>
-                    <p className="text-sm text-nods-text-muted mt-0.5">Flujo completo de leads hasta matriculación</p>
+                    <p className="text-sm text-nods-text-muted mt-0.5 font-medium">Flujo completo de leads hasta matriculación</p>
                 </div>
                 <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-5 py-3 rounded-2xl shadow-lg shadow-emerald-500/20">
                     <span className="text-[10px] font-semibold text-emerald-100 uppercase tracking-wider">Conversión Total</span>
@@ -101,15 +99,15 @@ export default function FunnelPage() {
 
             {/* Bar chart */}
             <div className="bg-nods-card border border-nods-border p-6 rounded-2xl shadow-sm">
-                <h3 className="font-bold text-white mb-6 flex items-center gap-2">
-                    <Target size={16} className="text-blue-500" /> Comparativa por Etapa
+                <h3 className="font-bold text-nods-text-primary mb-6 flex items-center gap-2">
+                    <Target size={16} className="text-nods-accent" /> Comparativa por Etapa
                 </h3>
                 <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={data} barCategoryGap="30%">
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                            <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                            <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 600 }} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11, fontWeight: 600 }} />
                             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59,130,246,0.06)', radius: 8 }} />
                             <Bar dataKey="value" name="Cantidad" radius={[8, 8, 0, 0]} animationDuration={1500}>
                                 {data.map((_, i) => (
@@ -139,12 +137,12 @@ export default function FunnelPage() {
                                     'bg-red-50 border-red-100'
                                 }`}
                         >
-                            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                            <p className="text-[11px] font-bold text-nods-text-muted uppercase tracking-wider mb-1">
                                 {prev.stage} → {stage.stage}
                             </p>
-                            <p className={`text-3xl font-extrabold ${isGood ? 'text-emerald-600' : isMid ? 'text-amber-500' : 'text-red-500'
+                            <p className={`text-3xl font-black ${isGood ? 'text-emerald-600' : isMid ? 'text-amber-600' : 'text-red-600'
                                 }`}>{conv}%</p>
-                            <p className="text-xs text-slate-400 mt-1">
+                            <p className="text-xs text-nods-text-muted mt-1 font-bold">
                                 {prev.value?.toLocaleString()} → {stage.value?.toLocaleString()}
                             </p>
                         </motion.div>

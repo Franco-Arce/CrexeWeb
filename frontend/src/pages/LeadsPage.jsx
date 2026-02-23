@@ -50,19 +50,19 @@ export default function LeadsPage() {
             {/* Filters */}
             <form onSubmit={handleSearch} className="flex flex-wrap gap-3 items-center">
                 <div className="relative flex-1 min-w-[240px]">
-                    <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-nods-text-muted" />
                     <input
                         type="text"
                         placeholder="Buscar por nombre, email o teléfono..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-nods-card border border-nods-border rounded-xl text-sm outline-none focus:border-nods-accent focus:ring-2 focus:ring-nods-accent/20 transition-all text-white"
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-nods-border rounded-xl text-sm outline-none focus:border-nods-accent focus:ring-2 focus:ring-nods-accent/20 transition-all text-nods-text-primary placeholder:text-nods-text-muted font-medium shadow-sm"
                     />
                 </div>
                 <select
                     value={medio}
                     onChange={(e) => { setMedio(e.target.value); setPage(1); }}
-                    className="px-4 py-3 bg-nods-card border border-nods-border rounded-xl text-sm text-slate-400 outline-none focus:border-nods-accent cursor-pointer"
+                    className="px-4 py-3 bg-white border border-nods-border rounded-xl text-sm text-nods-text-primary font-bold outline-none focus:border-nods-accent cursor-pointer shadow-sm hover:bg-slate-50 transition-all"
                 >
                     <option value="">Todos los medios</option>
                     <option value="Google">Google</option>
@@ -74,7 +74,7 @@ export default function LeadsPage() {
                 <select
                     value={resultado}
                     onChange={(e) => { setResultado(e.target.value); setPage(1); }}
-                    className="px-4 py-3 bg-nods-card border border-nods-border rounded-xl text-sm text-slate-400 outline-none focus:border-nods-accent cursor-pointer"
+                    className="px-4 py-3 bg-white border border-nods-border rounded-xl text-sm text-nods-text-primary font-bold outline-none focus:border-nods-accent cursor-pointer shadow-sm hover:bg-slate-50 transition-all"
                 >
                     <option value="">Todos los resultados</option>
                     <option value="No Contactado">No Contactado</option>
@@ -85,12 +85,12 @@ export default function LeadsPage() {
 
             {/* Table */}
             <div className="bg-nods-card border border-nods-border rounded-2xl shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="px-6 py-4 border-b border-nods-border flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Users size={16} className="text-blue-500" />
-                        <span className="font-bold text-white text-sm">Listado de Leads</span>
+                        <Users size={16} className="text-nods-accent" />
+                        <span className="font-bold text-nods-text-primary text-sm">Listado de Leads</span>
                     </div>
-                    <span className="text-xs text-slate-400 font-semibold">{data.total?.toLocaleString()} registros</span>
+                    <span className="text-xs text-nods-text-muted font-bold uppercase tracking-wider">{data.total?.toLocaleString()} registros</span>
                 </div>
 
                 {loading ? (
@@ -98,7 +98,7 @@ export default function LeadsPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-nods-bg text-nods-text-muted text-[10px] uppercase tracking-wider font-bold">
+                            <thead className="bg-slate-50 border-b border-nods-border text-nods-text-muted text-[10px] uppercase tracking-wider font-bold">
                                 <tr>
                                     <th className="px-6 py-4">Nombre</th>
                                     <th className="px-6 py-4">Email</th>
@@ -110,36 +110,36 @@ export default function LeadsPage() {
                                     <th className="px-6 py-4">Fecha</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-nods-border">
                                 {data.data?.map((lead, i) => (
                                     <motion.tr
                                         key={lead.idinterno || i}
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: i * 0.02 }}
-                                        className="hover:bg-slate-50/50 transition-colors"
+                                        className="hover:bg-slate-50 transition-colors"
                                     >
                                         <td className="px-6 py-4">
-                                            <p className="text-sm font-bold text-white">{lead.nombre || '—'}</p>
-                                            <p className="text-[11px] text-nods-text-muted">ID: #{lead.idinterno || i}</p>
+                                            <p className="text-sm font-bold text-nods-text-primary">{lead.nombre || '—'}</p>
+                                            <p className="text-[11px] text-nods-text-muted font-bold">ID: #{lead.idinterno || i}</p>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-nods-text-silver">{lead.email || '—'}</td>
-                                        <td className="px-6 py-4 text-sm text-nods-text-silver">{lead.telefono || '—'}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-text-primary font-medium">{lead.email || '—'}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-text-primary font-medium">{lead.telefono || '—'}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${MEDIO_STYLES[lead.medio] || 'bg-slate-100 text-slate-500'
                                                 }`}>
                                                 {lead.medio || '—'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600 max-w-[160px] truncate">{lead.programa_interes || '—'}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-text-primary font-medium max-w-[160px] truncate">{lead.programa_interes || '—'}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${STATUS_STYLES[lead.resultado_gestion] || 'bg-slate-100 text-slate-500'
                                                 }`}>
                                                 {lead.resultado_gestion || '—'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-slate-500 font-semibold">{lead.toques || 0}</td>
-                                        <td className="px-6 py-4 text-sm text-slate-400">
+                                        <td className="px-6 py-4 text-sm text-nods-text-primary font-bold">{lead.toques || 0}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-text-muted font-medium">
                                             {lead.fecha_lead ? new Date(lead.fecha_lead).toLocaleDateString('es-AR') : '—'}
                                         </td>
                                     </motion.tr>
@@ -150,22 +150,22 @@ export default function LeadsPage() {
                 )}
 
                 {/* Pagination */}
-                <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <span className="text-xs text-slate-400">
+                <div className="px-6 py-4 border-t border-nods-border flex items-center justify-between bg-slate-50">
+                    <span className="text-xs text-nods-text-muted font-bold uppercase tracking-wider">
                         Página {page} de {totalPages}
                     </span>
                     <div className="flex gap-2">
                         <button
                             disabled={page <= 1}
                             onClick={() => setPage(page - 1)}
-                            className="px-3 py-1.5 bg-nods-bg border border-nods-border rounded-lg text-sm text-nods-text-silver font-medium hover:bg-nods-card disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="px-3 py-1.5 bg-white border border-nods-border rounded-lg text-sm text-nods-text-primary font-bold hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95"
                         >
                             <ChevronLeft size={14} />
                         </button>
                         <button
                             disabled={page >= totalPages}
                             onClick={() => setPage(page + 1)}
-                            className="px-3 py-1.5 bg-nods-bg border border-nods-border rounded-lg text-sm text-nods-text-silver font-medium hover:bg-nods-card disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="px-3 py-1.5 bg-white border border-nods-border rounded-lg text-sm text-nods-text-primary font-bold hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95"
                         >
                             <ChevronRight size={14} />
                         </button>

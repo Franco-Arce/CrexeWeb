@@ -40,7 +40,7 @@ export default function LoginPage() {
                     <div className="w-20 h-20 mx-auto bg-nods-bg rounded-2xl flex items-center justify-center mb-5 border border-nods-border p-3">
                         <img src="/nods-logo.svg" alt="NODS" className="w-full" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-white mb-1">
+                    <h1 className="text-3xl font-extrabold text-nods-text-primary mb-1">
                         Uniandes
                     </h1>
                     <p className="text-sm text-nods-text-muted font-medium">Grupo Nods</p>
@@ -59,7 +59,7 @@ export default function LoginPage() {
                         </label>
                         <input
                             type="text" value={username} onChange={(e) => setUsername(e.target.value)} required
-                            className="w-full px-4 py-3.5 bg-nods-bg border border-nods-border rounded-xl text-sm text-white outline-none focus:border-nods-accent focus:ring-2 focus:ring-nods-accent/20 transition-all"
+                            className="w-full px-4 py-3.5 bg-nods-bg border border-nods-border rounded-xl text-sm text-nods-text-primary outline-none focus:border-nods-accent focus:ring-2 focus:ring-nods-accent/20 transition-all font-medium"
                             placeholder="Tu usuario"
                         />
                     </div>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                         </label>
                         <input
                             type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-                            className="w-full px-4 py-3.5 bg-nods-bg border border-nods-border rounded-xl text-sm text-white outline-none focus:border-nods-accent focus:ring-2 focus:ring-nods-accent/20 transition-all"
+                            className="w-full px-4 py-3.5 bg-nods-bg border border-nods-border rounded-xl text-sm text-nods-text-primary outline-none focus:border-nods-accent focus:ring-2 focus:ring-nods-accent/20 transition-all font-medium"
                             placeholder="••••••••"
                         />
                     </div>

@@ -84,7 +84,7 @@ export default function AIPanel({ onClose }) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-[380px] bg-nods-card border-l border-nods-border shadow-2xl flex flex-col z-50 text-white"
+            className="fixed top-0 right-0 bottom-0 w-[380px] bg-nods-card border-l border-nods-border shadow-2xl flex flex-col z-50 text-nods-text-primary"
         >
             {/* Header */}
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white">
@@ -112,8 +112,8 @@ export default function AIPanel({ onClose }) {
                         key={t.key}
                         onClick={() => setTab(t.key)}
                         className={`flex-1 py-3 text-xs font-semibold transition-all border-b-2 ${tab === t.key
-                            ? 'text-blue-600 border-blue-600 bg-nods-bg'
-                            : 'text-slate-400 border-transparent hover:text-nods-text-silver'
+                            ? 'text-nods-accent border-nods-accent bg-blue-50/50'
+                            : 'text-nods-text-muted border-transparent hover:text-nods-accent hover:bg-slate-50'
                             }`}
                     >
                         {t.label}
@@ -131,18 +131,18 @@ export default function AIPanel({ onClose }) {
                                 key={i}
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className={`max-w-[88%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
+                                className={`max-w-[88%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === 'user'
                                     ? 'bg-nods-accent text-white self-end rounded-tr-sm'
-                                    : 'bg-nods-bg text-nods-text-silver border border-nods-border shadow-sm self-start rounded-tl-sm'
+                                    : 'bg-white text-nods-text-primary border border-nods-border self-start rounded-tl-sm'
                                     }`}
                             >
                                 {msg.content}
                             </motion.div>
                         ))}
                         {sending && (
-                            <div className="bg-nods-bg p-3.5 rounded-2xl border border-nods-border shadow-sm self-start rounded-tl-sm flex items-center gap-2">
-                                <Loader2 size={14} className="animate-spin text-blue-500" />
-                                <span className="text-xs text-slate-400">Analizando...</span>
+                            <div className="bg-white p-3.5 rounded-2xl border border-nods-border shadow-sm self-start rounded-tl-sm flex items-center gap-2">
+                                <Loader2 size={14} className="animate-spin text-nods-accent" />
+                                <span className="text-xs text-nods-text-muted">Analizando...</span>
                             </div>
                         )}
                         <div ref={messagesEnd} />
@@ -173,7 +173,7 @@ export default function AIPanel({ onClose }) {
                         )}
                         <button
                             onClick={() => { setInsights(null); loadInsights(); }}
-                            className="w-full mt-2 py-2.5 bg-nods-card border border-nods-border rounded-xl text-xs font-semibold text-blue-600 hover:bg-blue-50 transition-colors"
+                            className="w-full mt-2 py-2.5 bg-white border border-nods-border rounded-xl text-xs font-bold text-nods-accent hover:bg-blue-50 transition-all shadow-sm active:scale-[0.98]"
                         >
                             🔄 Regenerar Insights
                         </button>
@@ -224,7 +224,7 @@ export default function AIPanel({ onClose }) {
                         )}
                         <button
                             onClick={() => { setPredictions(null); loadPredictions(); }}
-                            className="w-full mt-3 py-2.5 bg-nods-card border border-nods-border rounded-xl text-xs font-semibold text-blue-600 hover:bg-blue-50 transition-colors"
+                            className="w-full mt-3 py-2.5 bg-white border border-nods-border rounded-xl text-xs font-bold text-nods-accent hover:bg-blue-50 transition-all shadow-sm active:scale-[0.98]"
                         >
                             🔄 Regenerar Predicciones
                         </button>
@@ -242,7 +242,7 @@ export default function AIPanel({ onClose }) {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                         disabled={sending}
-                        className="flex-1 bg-nods-bg border border-nods-border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-white placeholder:text-nods-text-muted"
+                        className="flex-1 bg-nods-bg border border-nods-border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-nods-accent/20 transition-all text-nods-text-primary placeholder:text-nods-text-muted font-medium"
                     />
                     <button
                         onClick={sendMessage}

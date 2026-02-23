@@ -57,15 +57,15 @@ function Reveal({ children, delay = 0, className = '' }) {
 const ChartTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-slate-900 text-white rounded-xl shadow-2xl px-4 py-3 border border-slate-700 min-w-[160px]">
-            <p className="text-xs text-slate-400 mb-2 pb-1.5 border-b border-slate-700">{label}</p>
+        <div className="bg-nods-card text-nods-text-primary rounded-xl shadow-2xl px-4 py-3 border border-nods-border min-w-[160px]">
+            <p className="text-xs text-nods-text-muted mb-2 pb-1.5 border-b border-nods-border">{label}</p>
             {payload.map((p, i) => (
                 <div key={i} className="flex justify-between items-center py-0.5 gap-4">
-                    <span className="text-slate-300 text-xs flex items-center gap-2">
+                    <span className="text-nods-text-muted text-xs flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
                         {p.name}
                     </span>
-                    <span className="font-bold text-sm">{p.value?.toLocaleString()}</span>
+                    <span className="font-bold text-nods-text-primary text-sm">{p.value?.toLocaleString()}</span>
                 </div>
             ))}
         </div>
@@ -92,14 +92,14 @@ const StatCard = ({ label, value, icon: Icon, trend, suffix = '', styleIdx = 0 }
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6" />
             <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider opacity-80">{label}</p>
-                    <Icon size={16} className="opacity-60" />
+                    <p className="text-[11px] font-semibold text-nods-text-muted uppercase tracking-wider">{label}</p>
+                    <Icon size={16} className="text-nods-accent opacity-70" />
                 </div>
-                <h3 className="text-2xl font-extrabold">
+                <h3 className="text-2xl font-extrabold text-nods-text-primary">
                     <AnimatedNumber value={value} suffix={suffix} />
                 </h3>
                 {trend != null && (
-                    <div className={`flex items-center mt-2 text-[11px] font-semibold ${trend > 0 ? 'text-emerald-200' : 'text-rose-200'
+                    <div className={`flex items-center mt-2 text-[11px] font-semibold ${trend > 0 ? 'text-emerald-600' : 'text-rose-600'
                         }`}>
                         {trend > 0 ? <ArrowUpRight size={13} className="mr-0.5" /> : <ArrowDownRight size={13} className="mr-0.5" />}
                         {Math.abs(trend)}% vs anterior
@@ -173,12 +173,12 @@ export default function OverviewPage() {
                     <div className="bg-nods-card p-6 rounded-2xl border border-nods-border shadow-sm">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="font-bold text-white flex items-center gap-2">
-                                    <BarChart3 size={16} className="text-blue-500" /> Tendencias de Conversión
+                                <h3 className="font-bold text-nods-text-primary flex items-center gap-2">
+                                    <BarChart3 size={16} className="text-nods-accent" /> Tendencias de Conversión
                                 </h3>
-                                <p className="text-xs text-slate-400 mt-0.5">Actividad por período</p>
+                                <p className="text-xs text-nods-text-muted mt-0.5">Actividad por período</p>
                             </div>
-                            <div className="flex bg-slate-100 rounded-lg p-0.5">
+                            <div className="flex bg-slate-100/80 rounded-lg p-1">
                                 {[
                                     { key: 'day', label: 'Día' },
                                     { key: 'week', label: 'Semana' },
@@ -189,7 +189,7 @@ export default function OverviewPage() {
                                         onClick={() => setPeriod(p.key)}
                                         className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${period === p.key
                                             ? 'bg-nods-accent text-white shadow-sm'
-                                            : 'text-nods-text-muted hover:text-white hover:bg-white/5'
+                                            : 'text-nods-text-muted hover:text-nods-accent hover:bg-white'
                                             }`}
                                     >
                                         {p.label}
@@ -210,23 +210,23 @@ export default function OverviewPage() {
                                             <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                                    <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                                    <Area type="monotone" dataKey="leads" name="Leads" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#gL)" activeDot={{ r: 6, fill: '#3b82f6', stroke: '#fff', strokeWidth: 3 }} animationDuration={1500} />
-                                    <Area type="monotone" dataKey="efectivos" name="Efectivos" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#gE)" activeDot={{ r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 3 }} animationDuration={1800} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                                    <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} />
+                                    <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#2563EB', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                    <Area type="monotone" dataKey="leads" name="Leads" stroke="#2563EB" strokeWidth={2.5} fillOpacity={1} fill="url(#gL)" activeDot={{ r: 6, fill: '#2563EB', stroke: '#fff', strokeWidth: 3 }} animationDuration={1500} />
+                                    <Area type="monotone" dataKey="efectivos" name="Efectivos" stroke="#10B981" strokeWidth={2.5} fillOpacity={1} fill="url(#gE)" activeDot={{ r: 6, fill: '#10B981', stroke: '#fff', strokeWidth: 3 }} animationDuration={1800} />
                                     <Area type="monotone" dataKey="matriculados" name="Matriculados" stroke="#f59e0b" strokeWidth={2} strokeDasharray="6 3" fillOpacity={0} animationDuration={2200} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
                         <div className="flex gap-5 mt-4">
                             {[
-                                { label: 'Leads', color: 'bg-blue-500' },
-                                { label: 'Efectivos', color: 'bg-emerald-500' },
-                                { label: 'Matriculados', color: 'bg-amber-500' },
+                                { label: 'Leads', color: 'bg-nods-accent' },
+                                { label: 'Efectivos', color: 'bg-nods-success' },
+                                { label: 'Matriculados', color: 'bg-nods-warning' },
                             ].map(l => (
-                                <div key={l.label} className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                                <div key={l.label} className="flex items-center gap-2 text-xs font-medium text-nods-text-muted">
                                     <div className={`w-2.5 h-2.5 rounded-full ${l.color}`} /> {l.label}
                                 </div>
                             ))}
@@ -250,10 +250,10 @@ export default function OverviewPage() {
                                         transition={{ delay: 0.3 + i * 0.15 }}
                                     >
                                         <div className="flex justify-between items-end mb-1.5">
-                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{stage.stage}</span>
-                                            <span className="text-sm font-extrabold text-slate-900">{stage.value?.toLocaleString()}</span>
+                                            <span className="text-[11px] font-bold text-nods-text-muted uppercase tracking-wider">{stage.stage}</span>
+                                            <span className="text-sm font-extrabold text-nods-text-primary">{stage.value?.toLocaleString()}</span>
                                         </div>
-                                        <div className="h-10 bg-slate-100 rounded-lg relative overflow-hidden">
+                                        <div className="h-10 bg-slate-100 rounded-lg relative overflow-hidden shadow-inner border border-nods-border/30">
                                             <motion.div
                                                 className={`h-full ${FUNNEL_COLORS[i] || 'bg-blue-500'} rounded-lg`}
                                                 initial={{ width: 0 }}
@@ -261,7 +261,7 @@ export default function OverviewPage() {
                                                 transition={{ duration: 1.2, delay: 0.5 + i * 0.2, ease: [0.22, 1, 0.36, 1] }}
                                             />
                                             {convFromPrev && (
-                                                <div className="absolute top-1/2 right-3 -translate-y-1/2 text-[10px] font-bold text-slate-500">
+                                                <div className="absolute top-1/2 right-3 -translate-y-1/2 text-[10px] font-bold text-white drop-shadow-sm">
                                                     {convFromPrev}%
                                                 </div>
                                             )}
@@ -305,12 +305,12 @@ export default function OverviewPage() {
                                 </RePie>
                             </ResponsiveContainer>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div className="grid grid-cols-1 gap-2 mt-4">
                             {medios.slice(0, 5).map((m, i) => (
-                                <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                                <div key={i} className="flex items-center gap-2 text-xs text-nods-text-muted">
                                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i] }} />
                                     <span className="truncate">{m.medio}</span>
-                                    <span className="ml-auto font-bold text-slate-800">{m.total}</span>
+                                    <span className="ml-auto font-bold text-nods-text-primary">{m.total}</span>
                                 </div>
                             ))}
                         </div>
@@ -327,12 +327,12 @@ export default function OverviewPage() {
                             {programas.slice(0, 5).map((p, i) => (
                                 <div key={i}>
                                     <div className="flex justify-between text-sm mb-1.5">
-                                        <span className="font-medium text-slate-700 truncate mr-2">
+                                        <span className="font-medium text-nods-text-primary truncate mr-2">
                                             {p.programa?.length > 25 ? p.programa.slice(0, 25) + '…' : p.programa}
                                         </span>
-                                        <span className="font-bold text-slate-900 flex-shrink-0">{p.total}</span>
+                                        <span className="font-bold text-nods-text-primary flex-shrink-0">{p.total}</span>
                                     </div>
-                                    <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                    <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-nods-border/30">
                                         <motion.div
                                             className="h-full rounded-full"
                                             style={{ background: COLORS[i % COLORS.length] }}
@@ -355,9 +355,9 @@ export default function OverviewPage() {
                         </h3>
                         <div className="space-y-3">
                             {[
-                                { name: 'Top 1', conv: '24.5%', bg: 'bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 border-amber-200', medal: '🥇' },
-                                { name: 'Top 2', conv: '21.2%', bg: 'bg-gradient-to-r from-slate-100 to-slate-50 text-slate-600 border-slate-200', medal: '🥈' },
-                                { name: 'Top 3', conv: '18.8%', bg: 'bg-gradient-to-r from-orange-100 to-orange-50 text-orange-600 border-orange-200', medal: '🥉' },
+                                { name: 'Top 1', conv: '24.5%', bg: 'bg-white text-nods-text-primary border-nods-border hover:border-nods-warning/50', medal: '🥇' },
+                                { name: 'Top 2', conv: '21.2%', bg: 'bg-white text-nods-text-primary border-nods-border hover:border-slate-300', medal: '🥈' },
+                                { name: 'Top 3', conv: '18.8%', bg: 'bg-white text-nods-text-primary border-nods-border hover:border-nods-success/50', medal: '🥉' },
                             ].map((a, i) => (
                                 <div key={i} className={`flex items-center justify-between p-3.5 rounded-xl border ${a.bg}`}>
                                     <div className="flex items-center gap-3">
@@ -367,7 +367,7 @@ export default function OverviewPage() {
                                     <span className="text-sm font-extrabold text-emerald-600">{a.conv}</span>
                                 </div>
                             ))}
-                            <a href="/dashboard/agents" className="block text-center text-xs font-semibold text-blue-600 hover:text-blue-700 mt-3 py-2 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                            <a href="/dashboard/agents" className="block text-center text-xs font-bold text-white mt-3 py-2.5 bg-nods-accent rounded-xl hover:bg-blue-700 transition-all shadow-md shadow-nods-accent/10">
                                 Ver ranking completo →
                             </a>
                         </div>

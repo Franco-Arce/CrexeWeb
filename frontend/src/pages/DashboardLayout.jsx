@@ -35,7 +35,7 @@ export default function DashboardLayout() {
     const title = PAGE_TITLES[location.pathname] || 'Dashboard';
 
     return (
-        <div className="flex h-screen bg-nods-bg text-white overflow-hidden">
+        <div className="flex h-screen bg-nods-bg text-nods-text-primary overflow-hidden">
             {/* ── Sidebar ── */}
             <motion.aside
                 className="bg-slate-900 text-white flex-shrink-0 flex flex-col"
@@ -63,7 +63,7 @@ export default function DashboardLayout() {
                             end={item.end}
                             className={({ isActive }) =>
                                 `flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-medium transition-colors ${isActive
-                                    ? 'bg-blue-600 text-white'
+                                    ? 'bg-nods-accent text-white shadow-lg shadow-nods-accent/20'
                                     : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                                 }`
                             }
@@ -94,20 +94,20 @@ export default function DashboardLayout() {
 
             {/* ── Main ── */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-                <header className="h-16 border-b border-nods-border/50 bg-nods-card/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
+                <header className="h-16 border-b border-nods-border bg-nods-card/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
                     <div className="flex items-center gap-4">
-                        <h2 className="text-lg font-bold text-white">{title}</h2>
+                        <h2 className="text-lg font-bold text-nods-text-primary">{title}</h2>
 
                         <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-slate-200">
                             <button
                                 onClick={() => window.location.reload()}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-nods-text-muted bg-nods-bg hover:bg-nods-card border border-nods-border hover:border-nods-accent hover:text-white rounded-lg transition-all shadow-sm"
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-nods-text-muted bg-nods-bg hover:bg-white border border-nods-border hover:border-nods-accent hover:text-nods-accent rounded-lg transition-all shadow-sm"
                                 title="Actualizar datos desde la base"
                             >
                                 <RefreshCw size={12} className="opacity-70" />
                                 Actualizar Base
                             </button>
-                            <span className="text-[10px] font-medium text-slate-400">
+                            <span className="text-[10px] font-medium text-nods-text-muted">
                                 Última act.: {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         </div>
@@ -117,7 +117,7 @@ export default function DashboardLayout() {
                         onClick={() => setShowAI(!showAI)}
                         className={`p-2 rounded-xl border transition-all ${showAI
                             ? 'bg-nods-accent border-nods-accent text-white shadow-lg shadow-nods-accent/20'
-                            : 'bg-nods-card border-nods-border text-nods-text-muted hover:border-nods-accent/50 hover:text-white'
+                            : 'bg-nods-card border-nods-border text-nods-text-muted hover:border-nods-accent/50 hover:text-nods-accent'
                             }`}
                         title="Asistente IA"
                     >

@@ -32,8 +32,8 @@ export default function AgentsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Trophy size={20} className="text-amber-500" /> Ranking de Asesores
+                    <h2 className="text-xl font-bold text-nods-text-primary flex items-center gap-2">
+                        <Trophy size={20} className="text-nods-warning" /> Ranking de Asesores
                     </h2>
                     <p className="text-sm text-nods-text-muted mt-0.5">{agents.length} asesores activos</p>
                 </div>
@@ -51,19 +51,19 @@ export default function AgentsPage() {
                         className={`p-6 rounded-2xl border-2 ${MEDAL_BG[i] || 'bg-nods-card border-nods-border'} relative overflow-hidden`}
                     >
                         <div className="text-3xl mb-3">{MEDAL[i]}</div>
-                        <h3 className="text-lg font-extrabold text-slate-900">{agent.usuario}</h3>
+                        <h3 className="text-lg font-extrabold text-nods-text-primary">{agent.usuario}</h3>
                         <div className="mt-4 grid grid-cols-3 gap-3">
                             <div>
-                                <p className="text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Leads</p>
-                                <p className="text-lg font-bold text-slate-800">{agent.total_leads}</p>
+                                <p className="text-[10px] font-bold text-nods-text-muted uppercase mb-0.5 tracking-wider">Leads</p>
+                                <p className="text-lg font-bold text-nods-text-primary">{agent.total_leads}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Efectivos</p>
+                                <p className="text-[10px] font-bold text-nods-text-muted uppercase mb-0.5 tracking-wider">Efectivos</p>
                                 <p className="text-lg font-bold text-emerald-600">{agent.contacto_efectivo}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Conv.</p>
-                                <p className="text-lg font-bold text-blue-600">
+                                <p className="text-[10px] font-bold text-nods-text-muted uppercase mb-0.5 tracking-wider">Conv.</p>
+                                <p className="text-lg font-bold text-nods-accent">
                                     {agent.total_leads ? ((agent.contacto_efectivo / agent.total_leads) * 100).toFixed(1) : 0}%
                                 </p>
                             </div>
@@ -76,7 +76,7 @@ export default function AgentsPage() {
             <div className="bg-nods-card rounded-2xl border border-nods-border shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="bg-nods-bg text-nods-text-muted text-[10px] uppercase tracking-wider font-bold">
+                        <thead className="bg-slate-50 border-b border-nods-border text-nods-text-muted text-[10px] uppercase tracking-wider font-bold">
                             <tr>
                                 <th className="px-6 py-4">#</th>
                                 <th className="px-6 py-4">Asesor</th>
@@ -96,22 +96,22 @@ export default function AgentsPage() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: i * 0.03 }}
-                                        className="hover:bg-slate-50/50 transition-colors"
+                                        className="hover:bg-slate-50 transition-colors"
                                     >
                                         <td className="px-6 py-4">
                                             {i < 10 ? (
                                                 <span className="text-lg">{MEDAL[i]}</span>
                                             ) : (
-                                                <span className="text-sm text-slate-400 font-bold">{i + 1}</span>
+                                                <span className="text-sm text-nods-text-muted font-bold">{i + 1}</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="text-sm font-bold text-white">{a.usuario}</p>
+                                            <p className="text-sm font-bold text-nods-text-primary">{a.usuario}</p>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-nods-text-silver">{a.total_leads}</td>
-                                        <td className="px-6 py-4 text-sm text-blue-600 font-semibold">{a.contactados}</td>
-                                        <td className="px-6 py-4 text-sm text-emerald-600 font-semibold">{a.contacto_efectivo}</td>
-                                        <td className="px-6 py-4 text-sm text-slate-400">{a.no_contactados}</td>
+                                        <td className="px-6 py-4 text-sm font-bold text-nods-text-primary">{a.total_leads}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-accent font-bold">{a.contactados}</td>
+                                        <td className="px-6 py-4 text-sm text-emerald-600 font-bold">{a.contacto_efectivo}</td>
+                                        <td className="px-6 py-4 text-sm text-nods-text-muted font-bold">{a.no_contactados}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${parseFloat(conv) > 30 ? 'bg-emerald-50 text-emerald-600' :
                                                 parseFloat(conv) > 15 ? 'bg-blue-50 text-blue-600' :
