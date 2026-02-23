@@ -165,7 +165,7 @@ export default function LeadsPage() {
                         <button
                             disabled={page >= totalPages}
                             onClick={() => setPage(page + 1)}
-                            className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 font-medium hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="px-3 py-1.5 bg-nods-bg border border-nods-border rounded-lg text-sm text-nods-text-silver font-medium hover:bg-nods-card disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronRight size={14} />
                         </button>

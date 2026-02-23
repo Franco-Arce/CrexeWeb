@@ -47,8 +47,8 @@ export default function AgentsPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.15 }}
-                        whileHover={{ y: -4, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)' }}
-                        className={`p-6 rounded-2xl border-2 ${MEDAL_BG[i] || 'bg-white border-slate-100'} relative overflow-hidden`}
+                        whileHover={{ y: -4, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
+                        className={`p-6 rounded-2xl border-2 ${MEDAL_BG[i] || 'bg-nods-card border-nods-border'} relative overflow-hidden`}
                     >
                         <div className="text-3xl mb-3">{MEDAL[i]}</div>
                         <h3 className="text-lg font-extrabold text-slate-900">{agent.usuario}</h3>
