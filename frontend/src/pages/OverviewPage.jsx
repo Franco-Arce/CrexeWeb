@@ -92,7 +92,7 @@ const StatCard = ({ label, value, icon: Icon, trend, suffix = '', styleIdx = 0, 
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6" />
             <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                    <p className="text-[11px] font-semibold text-nods-text-muted uppercase tracking-wider">{label}</p>
+                    <p className="text-[11px] font-bold text-nods-text-primary uppercase tracking-wider">{label}</p>
                     <Icon size={16} className="text-nods-accent opacity-70" />
                 </div>
                 <h3 className="text-2xl font-extrabold text-nods-text-primary">
