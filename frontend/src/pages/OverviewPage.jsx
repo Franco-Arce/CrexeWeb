@@ -83,12 +83,11 @@ const KPI_STYLES = [
 ];
 
 const StatCard = ({ label, value, icon: Icon, trend, suffix = '', styleIdx = 0 }) => {
-    const style = KPI_STYLES[styleIdx] || KPI_STYLES[0];
     return (
         <motion.div
             whileHover={{ y: -3, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className={`${style.bg} p-5 rounded-2xl text-white shadow-lg ${style.shadow} relative overflow-hidden`}
+            className="bg-nods-card border border-nods-border p-6 rounded-3xl hover:border-nods-accent/30 transition-all group relative overflow-hidden"
         >
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-6 translate-x-6" />
             <div className="relative z-10">

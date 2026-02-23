@@ -58,7 +58,7 @@ export default function FunnelPage() {
             </div>
 
             {/* Visual Funnel */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="bg-nods-card border border-nods-border p-8 rounded-2xl shadow-sm">
                 <div className="max-w-2xl mx-auto space-y-1">
                     {data.map((stage, i) => {
                         const widthPct = Math.max((stage.value / maxVal) * 100, 20);
@@ -100,7 +100,7 @@ export default function FunnelPage() {
             </div>
 
             {/* Bar chart */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="bg-nods-card border border-nods-border p-6 rounded-2xl shadow-sm">
                 <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
                     <Target size={16} className="text-blue-500" /> Comparativa por Etapa
                 </h3>

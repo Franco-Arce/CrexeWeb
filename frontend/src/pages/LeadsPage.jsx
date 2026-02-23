@@ -56,13 +56,13 @@ export default function LeadsPage() {
                         placeholder="Buscar por nombre, email o teléfono..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                        className="w-full pl-10 pr-4 py-3 bg-nods-card border border-nods-border rounded-xl text-sm outline-none focus:border-nods-accent focus:ring-2 focus:ring-nods-accent/20 transition-all text-white"
                     />
                 </div>
                 <select
                     value={medio}
                     onChange={(e) => { setMedio(e.target.value); setPage(1); }}
-                    className="px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-600 outline-none focus:border-blue-500 cursor-pointer"
+                    className="px-4 py-3 bg-nods-card border border-nods-border rounded-xl text-sm text-slate-400 outline-none focus:border-nods-accent cursor-pointer"
                 >
                     <option value="">Todos los medios</option>
                     <option value="Google">Google</option>
@@ -74,7 +74,7 @@ export default function LeadsPage() {
                 <select
                     value={resultado}
                     onChange={(e) => { setResultado(e.target.value); setPage(1); }}
-                    className="px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-600 outline-none focus:border-blue-500 cursor-pointer"
+                    className="px-4 py-3 bg-nods-card border border-nods-border rounded-xl text-sm text-slate-400 outline-none focus:border-nods-accent cursor-pointer"
                 >
                     <option value="">Todos los resultados</option>
                     <option value="No Contactado">No Contactado</option>
@@ -84,7 +84,7 @@ export default function LeadsPage() {
             </form>
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-nods-card border border-nods-border rounded-2xl shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Users size={16} className="text-blue-500" />

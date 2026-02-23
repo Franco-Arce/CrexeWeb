@@ -35,7 +35,7 @@ export default function DashboardLayout() {
     const title = PAGE_TITLES[location.pathname] || 'Dashboard';
 
     return (
-        <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden">
+        <div className="flex h-screen bg-nods-bg text-white overflow-hidden">
             {/* ── Sidebar ── */}
             <motion.aside
                 className="bg-slate-900 text-white flex-shrink-0 flex flex-col"
@@ -94,7 +94,7 @@ export default function DashboardLayout() {
 
             {/* ── Main ── */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
+                <header className="h-16 border-b border-nods-border/50 bg-nods-card/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
                     <div className="flex items-center gap-4">
                         <h2 className="text-lg font-bold text-slate-800">{title}</h2>
 

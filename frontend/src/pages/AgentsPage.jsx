@@ -73,7 +73,7 @@ export default function AgentsPage() {
             </div>
 
             {/* Full Table */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-nods-card border border-nods-border p-6 rounded-3xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-wider font-bold">
