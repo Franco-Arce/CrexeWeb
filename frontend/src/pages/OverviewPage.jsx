@@ -82,7 +82,7 @@ const KPI_STYLES = [
     { bg: 'bg-gradient-to-br from-rose-500 to-rose-600', shadow: 'shadow-rose-500/20' },
 ];
 
-const StatCard = ({ label, value, icon: Icon, trend, suffix = '', styleIdx = 0 }) => {
+const StatCard = ({ label, value, icon: Icon, trend, suffix = '', styleIdx = 0, trendInverse = false }) => {
     return (
         <motion.div
             whileHover={{ y: -3, scale: 1.02 }}
@@ -99,9 +99,9 @@ const StatCard = ({ label, value, icon: Icon, trend, suffix = '', styleIdx = 0 }
                     <AnimatedNumber value={value} suffix={suffix} />
                 </h3>
                 {trend != null && (
-                    <div className={`flex items-center mt-2 text-[11px] font-semibold ${trend > 0 ? 'text-emerald-600' : 'text-rose-600'
+                    <div className={`flex items-center mt-2 text-[11px] font-semibold ${(trendInverse ? trend < 0 : trend > 0) ? 'text-emerald-600' : 'text-rose-600'
                         }`}>
-                        {trend > 0 ? <ArrowUpRight size={13} className="mr-0.5" /> : <ArrowDownRight size={13} className="mr-0.5" />}
+                        {(trendInverse ? trend < 0 : trend > 0) ? <ArrowUpRight size={13} className="mr-0.5" /> : <ArrowDownRight size={13} className="mr-0.5" />}
                         {Math.abs(trend)}% vs anterior
                     </div>
                 )}
@@ -146,7 +146,7 @@ export default function OverviewPage() {
     const kpiCards = [
         { label: 'Total Leads', value: kpis?.total_leads, icon: Users, trend: 12 },
         { label: 'Contactados', value: kpis?.contactados, icon: Phone, trend: 8 },
-        { label: 'No Contactados', value: kpis?.no_contactados, icon: UserX, trend: -5 },
+        { label: 'No Contactados', value: kpis?.no_contactados, icon: UserX, trend: -5, trendInverse: true },
         { label: 'Contacto Efectivo', value: kpis?.contacto_efectivo, icon: UserCheck, trend: 15 },
         { label: 'Matriculados', value: kpis?.matriculados, icon: GraduationCap, trend: 22 },
         { label: 'Conversión', value: kpis?.total_leads ? ((kpis.matriculados / kpis.total_leads) * 100).toFixed(2) : '0', icon: TrendingUp, suffix: '%', trend: 4 },

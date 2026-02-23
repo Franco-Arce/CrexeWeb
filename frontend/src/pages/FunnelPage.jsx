@@ -16,10 +16,12 @@ const STAGE_GRADIENTS = [
 const BAR_COLORS = ['#3b82f6', '#6366f1', '#10b981', '#f59e0b', '#8b5cf6'];
 
 const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload?.length) return null;
+    const data = payload[0].payload;
     return (
         <div className="bg-white text-nods-text-primary rounded-xl px-4 py-3 shadow-2xl border border-nods-border min-w-[140px]">
-            <p className="text-[10px] text-nods-text-muted mb-1 font-bold uppercase tracking-wider border-b border-nods-border pb-1">{d.payload?.stage}</p>
-            <p className="text-lg font-extrabold">{d.value?.toLocaleString()}</p>
+            <p className="text-[10px] text-nods-text-muted mb-1 font-bold uppercase tracking-wider border-b border-nods-border pb-1">{data?.stage}</p>
+            <p className="text-lg font-extrabold">{payload[0].value?.toLocaleString()}</p>
         </div>
     );
 };
