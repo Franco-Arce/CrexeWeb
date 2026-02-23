@@ -100,8 +100,8 @@ export default function DashboardLayout() {
 
                         <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-slate-200">
                             <button
-                                onClick={() => window.location.reload()}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-500 bg-slate-50 hover:bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 rounded-lg transition-all shadow-sm"
+                                onClick={fetchData}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-nods-text-muted bg-nods-bg hover:bg-nods-card border border-nods-border hover:border-nods-accent hover:text-white rounded-lg transition-all shadow-sm"
                                 title="Actualizar datos desde la base"
                             >
                                 <RefreshCw size={12} className="opacity-70" />
@@ -114,10 +114,10 @@ export default function DashboardLayout() {
                     </div>
 
                     <button
-                        onClick={() => setShowAI(!showAI)}
-                        className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${showAI
-                            ? 'bg-blue-50 border-blue-200 text-blue-600'
-                            : 'bg-white border-slate-200 text-slate-400 hover:border-blue-200 hover:text-blue-500'
+                        onClick={() => setIsOpen(!isOpen)} // Changed from setShowAI to setIsOpen
+                        className={`p-2 rounded-xl border transition-all ${isOpen // Changed from showAI to isOpen
+                            ? 'bg-nods-accent border-nods-accent text-white shadow-lg shadow-nods-accent/20'
+                            : 'bg-nods-card border-nods-border text-nods-text-muted hover:border-nods-accent/50 hover:text-white'
                             }`}
                         title="Asistente IA"
                     >

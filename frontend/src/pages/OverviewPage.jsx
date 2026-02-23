@@ -188,8 +188,8 @@ export default function OverviewPage() {
                                         key={p.key}
                                         onClick={() => setPeriod(p.key)}
                                         className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${period === p.key
-                                            ? 'bg-white text-blue-600 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'
+                                            ? 'bg-nods-accent text-white shadow-sm'
+                                            : 'text-nods-text-muted hover:text-white hover:bg-white/5'
                                             }`}
                                     >
                                         {p.label}
